@@ -149,6 +149,14 @@ Do **not** block Stage 1 product work on full kniq monorepo migration.
 - [ ] Update `sitemap.xml`  
 - [ ] Smoke test mobile + desktop 3D  
 
+**CLI status (2026-08-04):** Local `build:kniq` + `next start` verified — all `/poligraph/*` routes HTTP 200; browser QA passed (survey→results→explore→compare). **Blocked on deploy wire-up:** this agent environment only has `sameep-speedstar/PoliticalGraph` — no kniq site repo / Cloudflare API token. Need kniq repo access or CF credentials to finish Stage 1.5.
+
+Local smoke:
+```bash
+cd web && npm run build:kniq && POLIGRAPH_BASE_PATH=/poligraph npx next start -p 3000
+./scripts/smoke.sh http://127.0.0.1:3000/poligraph
+```  
+
 ---
 
 ## Risks specific to kniq mount
