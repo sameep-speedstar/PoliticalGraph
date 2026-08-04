@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   admireOptions,
@@ -9,7 +9,11 @@ import {
   likertLabels,
   type Question,
 } from "@/data/questions";
-import { getLocalePack, localePacks } from "@/data/localePacks";
+import {
+  getLocalePack,
+  localePacks,
+  type LocaleId,
+} from "@/data/localePacks";
 import { useSurveyStore } from "@/store/survey";
 import { encodeResultPayload } from "@/lib/scoring";
 
@@ -29,7 +33,30 @@ export default function SurveyPage() {
     computeResult,
   } = useSurveyStore();
 
-  // step 0 = locale, 1..3 = sections, last = admire
+  const [geoHint, setGeoHint] = useState<{
+    country: string | null;
+    suggestedLocale: LocaleId;
+  } | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/geo")
+      .then((r) => r.json())
+      .then((data) => {
+        if (cancelled) return;
+        setGeoHint({
+          country: data.country ?? null,
+          suggestedLocale: data.suggestedLocale ?? "global",
+        });
+      })
+      .catch(() => {
+        /* ignore — user can pick manually */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const sectionOffset = 1;
   const totalSteps = sectionOffset + SECTIONS.length + 1;
   const isLocaleStep = step === 0;
@@ -104,8 +131,28 @@ export default function SurveyPage() {
           <p className="blurb">
             Core value questions are global. Location adds regional framing and a
             rotating current-affairs pack — still scored onto the{" "}
-            <strong>same fixed 3D axes</strong> used for every comparison.
+            <strong>same fixed 3D axes</strong> used for every comparison. No
+            account needed.
           </p>
+          {geoHint?.country && (
+            <p className="geo-hint">
+              Network hint suggests <strong>{geoHint.country}</strong> (country
+              only from IP — often wrong on VPN). Confirm or change below. We do
+              not treat this as your home constituency.
+              {locale == null && (
+                <>
+                  {" "}
+                  <button
+                    type="button"
+                    className="text-link"
+                    onClick={() => setLocale(geoHint.suggestedLocale)}
+                  >
+                    Use suggested pack ({geoHint.suggestedLocale})
+                  </button>
+                </>
+              )}
+            </p>
+          )}
           <div className="admire-grid">
             {localePacks.map((p) => (
               <button

@@ -81,7 +81,12 @@ export default function MethodologyPage() {
         <li>Not a moral ranking or &quot;good vs evil&quot; score.</li>
         <li>Not a prediction of your vote.</li>
         <li>Not an endorsement of any figure you land near.</li>
-        <li>Not microtargeting infrastructure — the MVP runs client-side.</li>
+        <li>
+          Not covert microtargeting infrastructure. The consumer survey does not
+          require an account. Any future research use requires{" "}
+          <strong>explicit opt-in</strong> to a separate Insights panel —
+          aggregates and message tests, not silent resale of individual dossiers.
+        </li>
       </ul>
 
       <p style={{ marginTop: "2rem" }}>

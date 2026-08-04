@@ -404,6 +404,25 @@ input {
   background: rgba(196, 92, 38, 0.08);
 }
 
+.geo-hint {
+  padding: 0.85rem 1rem;
+  margin: 0 0 1.25rem;
+  background: rgba(42, 111, 122, 0.08);
+  border-left: 3px solid var(--teal);
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+}
+
+.text-link {
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--copper-deep);
+  text-decoration: underline;
+  cursor: pointer;
+  font: inherit;
+}
+
 .survey-nav {
   display: flex;
   justify-content: space-between;

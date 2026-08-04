@@ -61,6 +61,18 @@ Published ideology_vector + evidence rows
 
 No public dimension score without approved evidence.
 
+## Auth, location, and commercial use (locked after assumption challenge)
+
+See [`STRATEGY_ASSUMPTIONS.md`](./STRATEGY_ASSUMPTIONS.md).
+
+| Topic | Lock |
+|-------|------|
+| Consumer sign-in | **Optional**, after results (“save map”) — never required to take survey |
+| Location | **User-confirmed** locale; optional **IP→country only** hint; no constituency-from-IP |
+| Individual ideology resale / silent microtargeting | **Forbidden** |
+| B2B value | Separate **Poligraph Insights**: aggregates, message tests, opt-in panel only |
+| Brand | Consumer Poligraph stays education/atlas; Insights must be explicitly consented research |
+
 ## Mockups
 
 Visual references (also in repo `web/public/mockups/`):

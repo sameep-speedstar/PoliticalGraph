@@ -8,6 +8,7 @@ Worldview mapping product — ships as pages on **[kniq.ai/poligraph](https://kn
 
 | Doc | Purpose |
 |-----|---------|
+| [`STRATEGY_ASSUMPTIONS.md`](./STRATEGY_ASSUMPTIONS.md) | Challenge: auth, IP, campaign data thesis |
 | [`DELIVERY_PLAN.md`](./DELIVERY_PLAN.md) | Stage-wise delivery + kniq mount |
 | [`DESIGN_LOCKED.md`](./DESIGN_LOCKED.md) | Locked product decisions |
 | [`web/DEPLOY_KNIQ.md`](./web/DEPLOY_KNIQ.md) | Cloudflare / path deploy steps |

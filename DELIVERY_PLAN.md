@@ -95,7 +95,18 @@ Do **not** block Stage 1 product work on full kniq monorepo migration.
 | Editor UI: draft → human approve → publish |
 | Evidence rows required per published dimension |
 | Expand to **100** public figures |
-| Auth for editors only (users stay anonymous/client) |
+| **Optional** consumer auth (save map) — survey stays guest-first |
+| Coarse IP→country hint only (confirm/override); no constituency-from-IP |
+
+### Stage 2.5 — Poligraph Insights (B2B, opt-in only)
+
+| Deliverable |
+|-------------|
+| Separate Insights surface (not hidden in consumer funnel) |
+| Opt-in research panel consent (explicit, withdrawable) |
+| k-anonymous segment heatmaps + message tests |
+| **Ban:** raw individual vector + PII export for microtargeting |
+| See `STRATEGY_ASSUMPTIONS.md` |
 
 ### Stage 3 — AI-assisted research (still human-gated)
 
