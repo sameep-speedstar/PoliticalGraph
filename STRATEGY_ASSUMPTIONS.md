@@ -186,11 +186,11 @@ If a buyer asks for “export all users in Karnataka with Cultural &gt; 60 and e
 
 ## 6. Bottom line
 
-Your instinct that **worldview + geography + message** is valuable is right.  
-Your instinct that **free consumer sessions quietly become a campaign weapon** is the assumption to kill.
+**Decision (2026-08-04): Poligraph is A** — public atlas + optional research panel. Not a data broker.
 
-**Build the consumer product so simple it spreads.  
-Build the commercial product so honest it can be printed on the homepage.  
-Connect them only through opt-in panel + aggregates.**
+Your instinct that worldview + geography + message can be valuable is right.  
+Your instinct that free consumer sessions quietly become a campaign weapon is rejected.
 
-That is harder than “collect and sell,” and it is the only version that survives contact with regulators, journalists, and the users you need for scale.
+Build the consumer product so simple it spreads.  
+Build Insights (if at all) so honest it can be printed on the homepage.  
+Connect them only through opt-in panel + aggregates.

@@ -2,6 +2,8 @@
 
 **Product:** Poligraph  
 **Product identity (LOCKED):** Poligraph is **A** — public worldview atlas + optional opt-in research panel. **Not** a political/corporate data broker.  
+**Host:** additional pages on [www.kniq.ai](https://www.kniq.ai) (canonical: `https://kniq.ai/poligraph`)  
+**Parent brand:** KNIQ · Speedstar AI Labs  
 
 kniq.ai today is a **static Cloudflare site** (marketing + `/blog/` + `/privacy/`). Poligraph ships as a **path-mounted Next app** under `/poligraph/*`, not a subdomain, so it stays inside the KNIQ property and SEO graph.
 
