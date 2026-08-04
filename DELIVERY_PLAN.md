@@ -144,18 +144,25 @@ Do **not** block Stage 1 product work on full kniq monorepo migration.
 ## Stage 1.5 ops checklist
 
 - [ ] Create Poligraph Cloudflare Pages (or Vercel) project from `web/`  
-- [ ] Add rewrite on kniq zone: `/poligraph*` → origin  
+- [ ] Add rewrite on kniq zone: `/poligraph*` → origin **OR** merge deploy into `kniqnew`  
 - [ ] Add nav/product card on kniq index  
 - [ ] Update `sitemap.xml`  
 - [ ] Smoke test mobile + desktop 3D  
 
-**CLI status (2026-08-04):** Local `build:kniq` + `next start` verified — all `/poligraph/*` routes HTTP 200; browser QA passed (survey→results→explore→compare). **Blocked on deploy wire-up:** this agent environment only has `sameep-speedstar/PoliticalGraph` — no kniq site repo / Cloudflare API token. Need kniq repo access or CF credentials to finish Stage 1.5.
+**CLI status (2026-08-04):** Local QA passed. Merged deploy package prepared at `/tmp/kniq-site` (kniq mirror + `/poligraph` static + nav/sitemap). Deploy script: `web/scripts/deploy-kniq-pages.sh` → project **`kniqnew`**.
 
-Local smoke:
+**Blocked:** Cloudflare API token is **IP-restricted** from this cloud agent (`Cannot use the access token from location` / auth 401). Agent egress IPs seen: `3.23.49.121`, `3.133.39.109` (also previously `18.191.61.2`, `3.13.103.163`).
+
+**Unblock:** Cloudflare Dashboard → My Profile → API Tokens → edit token → **Client IP Address Filtering** → add those IPs **or remove the allowlist** → tell agent to retry deploy.
+
 ```bash
-cd web && npm run build:kniq && POLIGRAPH_BASE_PATH=/poligraph npx next start -p 3000
-./scripts/smoke.sh http://127.0.0.1:3000/poligraph
-```  
+export CLOUDFLARE_API_TOKEN='…'   # unrestricted or allowlisted
+export CLOUDFLARE_ACCOUNT_ID='bc4f133b1a6341e56c3b7041374e64b3'
+export CLOUDFLARE_PAGES_PROJECT='kniqnew'
+cd web && ./scripts/deploy-kniq-pages.sh
+```
+
+Do **not** commit API tokens or R2 keys to git.  
 
 ---
 
