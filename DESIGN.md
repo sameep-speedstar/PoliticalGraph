@@ -1,38 +1,45 @@
-# PoliticalGraph — Product Design & Brainstorm
+# PoliGraph — Product Design & Brainstorm
+
+> **Status:** Working MVP shipped as a 3-axis slice. North-star constitution + scope discipline live in [`DESIGN_RECONCILIATION.md`](./DESIGN_RECONCILIATION.md) (master prompt vs MVP). Do not treat this file alone as the locked final design until the checklist there is answered.
+
+**Product name:** PoliGraph  
+**Tagline:** *Understand how people think.*
 
 ## The core insight
 
-Left–right is a blunt instrument. People who share an "economic left" label can disagree violently on nationalism, religion, free speech, and authority. A useful map needs **at least three independent dimensions**, then places both individuals and public figures in the same space so similarity is geometric, not tribal branding.
+Left–right is a blunt instrument. People who share an "economic left" label can disagree violently on nationalism, religion, free speech, and authority. A useful map needs a **rich internal worldview vector** (target: 12 dimensions) with a **legible 3D visualization**, then places individuals and public figures in the same space so similarity is geometric and evidence-backed — never a moral ranking.
 
 **Promise to the user:** *You are not a label. You are a point in idea-space — and here are the people and thinking groups nearest to you.*
 
+**Non-negotiables:** no good/bad classification; no religion ranking; every *public* score shows confidence, evidence, rationale, sources.
+
 ---
 
-## The 3D model (v1 axes)
+## Ideology model
+
+### Internal vector (target): 12 dimensions (−100…+100 each)
+
+D1 Liberty↔Authority · D2 Global↔National · D3 Secular↔Religious traditionalism · D4 Market↔Redistribution · D5 Technocracy↔Populism · D6 Progressive↔Cultural traditional · D7 Merit↔Equality outcomes · D8 International cooperation↔Isolation · D9 Civil liberties↔Security · D10 Environment↔Growth · D11 Scientific rationalism↔Faith-based reasoning · D12 Centralized↔Decentralized governance
+
+Run correlation checks on a gold set; merge dims with |r| > 0.85 unless theoretically justified (see reconciliation doc).
+
+### Frontend 3D (v1 shipped / default legend)
 
 Each axis runs **−100 → +100**. Origin (0,0,0) is the pragmatic center.
 
-| Axis | Negative pole (−) | Positive pole (+) | What it captures |
-|------|-------------------|-------------------|------------------|
-| **X — Economic** | Equality / redistribution / state provision | Markets / property / low intervention | Who should control capital and welfare |
-| **Y — Authority** | Libertarian / civil liberties / constrained state | Authoritarian / order / strong executive | How much coercive power the state should have |
-| **Z — Cultural identity** | Cosmopolitan / secular-plural / open borders ethos | Particularist / traditional-religious / national priority | Who "we" are, and what binds the polity |
+| Viz axis | Negative pole (−) | Positive pole (+) | Maps primarily from |
+|----------|-------------------|-------------------|---------------------|
+| **X — Economic** | Equality / redistribution | Markets / property | D4 + D7 |
+| **Y — Authority** | Libertarian / civil liberties | Authoritarian / order | D1 + D9 (+ D12) |
+| **Z — Cultural identity** | Cosmopolitan / secular-plural | Particularist / traditional-religious | D2 + D3 + D6 |
 
-### Why these three (and not others)
+Full 12D appears in profile radar, compare tables, and optional alternate 3D bases (e.g. foreign-policy space).
 
-- They are **partially orthogonal** in real populations (classic Political Compass is X×Y; Z separates Modi/Trump-style national conservatives from classical liberals and from theocratic authoritarians).
-- They absorb the signals the brief asks for: **politics, religion, ideal-person affinity, statement agreement**.
-- They stay explainable in a UI legend — critical for trust.
+### Secondary signals
 
-### Secondary tags (not axes, but rich metadata)
-
-Returned alongside the point for narrative, not geometry:
-
-- **Religious disposition:** secular ↔ devout (feeds Z slightly, shown as a tag)
-- **Institutional trust:** establishment ↔ populist (cluster flavor)
-- **Ideal-person affinities:** soft prior + post-hoc validation ("you admire X; your score is near X")
-
-Future v2 candidates if data supports independence: ecological stewardship, tech-optimism, foreign-policy hawkishness.
+- **Admiration:** soft prior only (α ≤ 0.12), plus honesty check vs geometric distance
+- **Faith / epistemology tags:** from D3/D11 — never a religion ranking
+- **Confidence** per dimension for public figures
 
 ---
 
