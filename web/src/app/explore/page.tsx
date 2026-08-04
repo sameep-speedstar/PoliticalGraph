@@ -9,13 +9,43 @@ import {
   type Personality,
 } from "@/data/personalities";
 
+const FILTERS = [
+  { id: "all", label: "All" },
+  { id: "politician", label: "Politicians" },
+  { id: "business", label: "Business" },
+  { id: "intellectual", label: "Intellectuals" },
+  { id: "activist", label: "Activists" },
+  { id: "religious", label: "Religious" },
+] as const;
+
+function matchesFilter(p: Personality, filter: string) {
+  if (filter === "all") return true;
+  const blob = `${p.roles.join(" ")} ${p.tags.join(" ")}`.toLowerCase();
+  if (filter === "politician") {
+    return /president|prime minister|chancellor|representative|senator|opposition|minister|congress/.test(
+      blob,
+    );
+  }
+  if (filter === "business") return /ceo|investor|technologist|business|philanthropist/.test(blob);
+  if (filter === "activist") return /activist|climate|education activist/.test(blob);
+  if (filter === "religious") return /pope|monk|swami|catholic|hindu|religious|vedanta/.test(blob);
+  if (filter === "intellectual") {
+    return /economist|psychologist|philosopher|author|intellectual|theorist/.test(blob);
+  }
+  return true;
+}
+
 export default function ExplorePage() {
   const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<(typeof FILTERS)[number]["id"]>("all");
   const [selected, setSelected] = useState<Personality | null>(
     personalities.find((p) => p.id === "elon-musk") ?? personalities[0],
   );
 
-  const filtered = useMemo(() => searchPersonalities(query), [query]);
+  const filtered = useMemo(() => {
+    return searchPersonalities(query).filter((p) => matchesFilter(p, filter));
+  }, [query, filter]);
+
   const highlightIds = selected ? [selected.id] : filtered.map((p) => p.id);
 
   return (
@@ -24,19 +54,31 @@ export default function ExplorePage() {
         <div className="graph-toolbar">
           <input
             type="search"
-            placeholder="Search Modi, Musk, Soros, Xi…"
+            placeholder="Search Modi, Musk, Sen, Milei…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             aria-label="Search public figures"
           />
           <span style={{ fontSize: "0.85rem", color: "var(--ink-soft)" }}>
-            {filtered.length} figures
+            {filtered.length} / {personalities.length} figures
           </span>
         </div>
+        <div className="filter-row">
+          {FILTERS.map((f) => (
+            <button
+              key={f.id}
+              type="button"
+              className={`filter-chip ${filter === f.id ? "is-on" : ""}`}
+              onClick={() => setFilter(f.id)}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
         <PoliticalGraph3DDynamic
-          personalities={query ? filtered : personalities}
+          personalities={query || filter !== "all" ? filtered : personalities}
           selectedId={selected?.id}
-          highlightIds={query ? highlightIds : undefined}
+          highlightIds={query || filter !== "all" ? highlightIds : undefined}
           onSelect={(p) => setSelected(p)}
         />
       </div>
@@ -48,10 +90,10 @@ export default function ExplorePage() {
             Public figures in the constellation
           </h1>
           <p style={{ margin: 0, color: "var(--ink-soft)", fontSize: "0.95rem" }}>
-            Placements are interpretive composites from public speeches,
-            platforms, funding, and institutional roles — with confidence tags.
+            Hand-scored interpretive placements with confidence tags. Human
+            approval required before any AI-drafted score can publish.
           </p>
-          <ul className="neighbor-list" style={{ marginTop: "1rem", maxHeight: 280, overflow: "auto" }}>
+          <ul className="neighbor-list" style={{ marginTop: "1rem", maxHeight: 320, overflow: "auto" }}>
             {filtered.map((p) => (
               <li key={p.id}>
                 <button

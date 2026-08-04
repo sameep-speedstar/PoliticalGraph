@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "build:kniq": "POLIGRAPH_BASE_PATH=/poligraph next build",
+    "build:kniq:static": "POLIGRAPH_EXPORT=1 POLIGRAPH_BASE_PATH=/poligraph next build",
     "start": "next start",
     "start:kniq": "POLIGRAPH_BASE_PATH=/poligraph next start",
     "lint": "eslint"

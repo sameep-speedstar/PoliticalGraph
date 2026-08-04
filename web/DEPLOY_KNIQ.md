@@ -6,16 +6,14 @@ Target: `https://kniq.ai/poligraph` (and `www.kniq.ai/poligraph`).
 
 ```bash
 cd web
-POLIGRAPH_BASE_PATH=/poligraph npm ci
-POLIGRAPH_BASE_PATH=/poligraph npm run build
-```
+npm ci
 
-Optional static export (drop into kniq Cloudflare Pages as a folder):
+# Node server / Cloudflare Pages with Next adapter
+npm run build:kniq
 
-```bash
-# add to next.config when using this path: output: 'export'
-POLIGRAPH_BASE_PATH=/poligraph npm run build
-# out/ or .next + adapter depending on host
+# OR static HTML drop-in for kniq Pages folder (no server)
+npm run build:kniq:static
+# → copy `out/` contents into kniq site under /poligraph/
 ```
 
 ## 2. Hosting options

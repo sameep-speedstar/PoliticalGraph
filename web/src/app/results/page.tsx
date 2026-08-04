@@ -5,6 +5,8 @@ import { useMemo, useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { PoliticalGraph3DDynamic } from "@/components/PoliticalGraph3DDynamic";
 import { PersonalityPanel } from "@/components/PersonalityPanel";
+import { ShareMapButton } from "@/components/ShareMapButton";
+import { ResearchPanelOptIn } from "@/components/ResearchPanelOptIn";
 import type { Personality } from "@/data/personalities";
 import { getPersonality } from "@/data/personalities";
 import { useSurveyStore } from "@/store/survey";
@@ -37,7 +39,7 @@ function ResultsInner() {
 
   const coords = payload?.coords ?? null;
   const neighbors = useMemo(
-    () => (coords ? nearestPersonalities(coords, 5) : []),
+    () => (coords ? nearestPersonalities(coords, 8) : []),
     [coords],
   );
   const clusterHits = useMemo(
@@ -49,7 +51,7 @@ function ResultsInner() {
     (hydrated ? store.answers : {}) as Answers,
   );
 
-  const highlightIds = neighbors.map((n) => n.personality.id);
+  const highlightIds = neighbors.slice(0, 5).map((n) => n.personality.id);
 
   useEffect(() => {
     if (neighbors[0] && !selected) {
@@ -84,9 +86,18 @@ function ResultsInner() {
       <div className="graph-panel">
         <div className="graph-toolbar">
           <strong>Your position in idea-space</strong>
-          <Link href="/survey" className="btn btn-ghost" style={{ padding: "0.45rem 0.9rem" }}>
-            Retake
-          </Link>
+          <div className="cta-row">
+            <ShareMapButton
+              coords={coords}
+              clusterName={primary?.name ?? "your cluster"}
+            />
+            <Link href="/compare" className="btn btn-ghost" style={{ padding: "0.45rem 0.9rem" }}>
+              Compare
+            </Link>
+            <Link href="/survey" className="btn btn-ghost" style={{ padding: "0.45rem 0.9rem" }}>
+              Retake
+            </Link>
+          </div>
         </div>
         <PoliticalGraph3DDynamic
           userCoords={coords}
@@ -164,6 +175,8 @@ function ResultsInner() {
               );
             })}
         </div>
+
+        <ResearchPanelOptIn locale={store.locale} />
 
         {selected && (
           <PersonalityPanel

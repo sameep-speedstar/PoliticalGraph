@@ -22,6 +22,7 @@ export function SiteNav() {
         <Link href="/explore">Explore</Link>
         <Link href="/compare">Compare</Link>
         <Link href="/methodology">Methodology</Link>
+        <Link href="/privacy">Privacy</Link>
       </nav>
     </header>
   );

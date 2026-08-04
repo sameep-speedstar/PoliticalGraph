@@ -137,7 +137,9 @@ Do **not** block Stage 1 product work on full kniq monorepo migration.
 - [x] `POLIGRAPH_BASE_PATH` + kniq parent chrome  
 - [x] `DELIVERY_PLAN.md` (this file)  
 - [x] Staging deploy instructions for Cloudflare (`web/DEPLOY_KNIQ.md`)  
-- [ ] Seed figure pass → 30 with evidence notes 
+- [x] Seed figure pass → 30+ with evidence notes  
+- [x] Share map + privacy page + local research-panel interest (opt-in)  
+- [x] Explore role filters  
 
 ## Stage 1.5 ops checklist
 

@@ -16,6 +16,7 @@ import {
 } from "@/data/localePacks";
 import { useSurveyStore } from "@/store/survey";
 import { encodeResultPayload } from "@/lib/scoring";
+import { guessLocaleFromBrowser } from "@/lib/geoGuess";
 
 const SECTIONS: Question["section"][] = ["politics", "society", "religion"];
 
@@ -39,22 +40,11 @@ export default function SurveyPage() {
   } | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
-    fetch("/api/geo")
-      .then((r) => r.json())
-      .then((data) => {
-        if (cancelled) return;
-        setGeoHint({
-          country: data.country ?? null,
-          suggestedLocale: data.suggestedLocale ?? "global",
-        });
-      })
-      .catch(() => {
-        /* ignore — user can pick manually */
-      });
-    return () => {
-      cancelled = true;
-    };
+    const guess = guessLocaleFromBrowser();
+    setGeoHint({
+      country: guess.label,
+      suggestedLocale: guess.suggestedLocale,
+    });
   }, []);
 
   const sectionOffset = 1;
@@ -134,11 +124,12 @@ export default function SurveyPage() {
             <strong>same fixed 3D axes</strong> used for every comparison. No
             account needed.
           </p>
-          {geoHint?.country && (
+          {geoHint?.suggestedLocale && geoHint.suggestedLocale !== "global" && (
             <p className="geo-hint">
-              Network hint suggests <strong>{geoHint.country}</strong> (country
-              only from IP — often wrong on VPN). Confirm or change below. We do
-              not treat this as your home constituency.
+              Browser hint suggests pack{" "}
+              <strong>{geoHint.suggestedLocale}</strong> ({geoHint.country}).
+              Confirm or change below — guesses are coarse and often wrong on
+              travel/VPN. Not used as your home constituency.
               {locale == null && (
                 <>
                   {" "}
@@ -147,7 +138,7 @@ export default function SurveyPage() {
                     className="text-link"
                     onClick={() => setLocale(geoHint.suggestedLocale)}
                   >
-                    Use suggested pack ({geoHint.suggestedLocale})
+                    Use suggested pack
                   </button>
                 </>
               )}

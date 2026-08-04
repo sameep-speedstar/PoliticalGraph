@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Fraunces, Sora } from "next/font/google";
 import { SiteNav } from "@/components/SiteNav";
 import "./globals.css";
@@ -27,10 +28,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <SiteNav />
         <main className="flex-1">{children}</main>
         <footer className="site-footer">
-          Poligraph is a KNIQ experiment — an interpretive atlas of ideas, not a
-          moral score or ranking of people or religions. Public-figure placements
-          require human-approved evidence and confidence levels.{" "}
+          Poligraph is a KNIQ experiment — a public worldview atlas (product A),
+          not a data broker. Public-figure placements require human-approved
+          evidence.{" "}
           <a href="https://kniq.ai/">kniq.ai</a>
+          {" · "}
+          <Link href="/privacy">Privacy</Link>
         </footer>
       </body>
     </html>

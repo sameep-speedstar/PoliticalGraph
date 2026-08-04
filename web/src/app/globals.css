@@ -719,11 +719,46 @@ input {
   background: rgba(255, 255, 255, 0.6);
 }
 
-.site-footer {
-  padding: 2rem clamp(1.25rem, 4vw, 3rem);
+.panel-consent {
+  margin-top: 0.85rem;
+  padding-top: 0.75rem;
   border-top: 1px solid var(--line);
   color: var(--ink-soft);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
+}
+
+.panel-consent p {
+  margin: 0 0 0.85rem;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.filter-chip {
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.filter-chip.is-on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+
+.site-footer a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 /* ——— Mockup gallery ——— */

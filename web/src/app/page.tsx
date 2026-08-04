@@ -17,8 +17,9 @@ export default function HomePage() {
           <h1>Understand how people think.</h1>
           <p className="hero-lead">
             A free, location-aware survey places you on a fixed three-axis map —
-            economy, authority, cultural identity — beside public figures backed
-            by evidence and human review.
+            economy, authority, cultural identity — beside {personalities.length}+
+            public figures backed by evidence notes and human review. Guest-first.
+            No account required.
           </p>
           <div className="cta-row">
             <Link href="/survey" className="btn btn-primary">
