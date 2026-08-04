@@ -13,23 +13,23 @@ export default function HomePage() {
     <>
       <section className="hero">
         <div className="hero-copy">
-          <p className="hero-brand">PoliticalGraph</p>
-          <h1>See where your thinking sits in idea-space.</h1>
+          <p className="hero-brand">Poligraph</p>
+          <h1>Understand how people think.</h1>
           <p className="hero-lead">
-            A free survey places you on three axes — economy, authority, and
-            cultural identity — beside public figures mapped from speeches,
-            campaigns, and public records.
+            A free, location-aware survey places you on a fixed three-axis map —
+            economy, authority, cultural identity — beside public figures backed
+            by evidence and human review.
           </p>
           <div className="cta-row">
             <Link href="/survey" className="btn btn-primary">
               Take the map — free
             </Link>
-            <Link href="/explore" className="btn btn-ghost">
-              Search famous people
+            <Link href="/mockup" className="btn btn-ghost">
+              View mockups
             </Link>
           </div>
         </div>
-        <div className="hero-visual" aria-label="Interactive 3D political constellation">
+        <div className="hero-visual" aria-label="Interactive 3D ideological constellation">
           <PoliticalGraph3DDynamic
             personalities={personalities}
             selectedId={selected?.id}
@@ -40,11 +40,11 @@ export default function HomePage() {
 
       <section className="section">
         <div className="section-narrow">
-          <h2>Three axes, not one tribe</h2>
+          <h2>One shared map for everyone</h2>
           <p className="section-lead">
-            Left–right collapses too much. PoliticalGraph separates economic
-            distribution, state power, and cultural belonging so you can see
-            which thinking group you actually inhabit — and who is nearest.
+            The 3D basis stays fixed so your position is comparable to every other
+            user and figure. Questions can adapt to your country and current
+            affairs — the axes do not.
           </p>
           <div className="axis-cards">
             <article className="axis-card">

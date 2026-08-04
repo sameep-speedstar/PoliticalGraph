@@ -1,16 +1,19 @@
 import { clusters, type ThinkingCluster } from "@/data/clusters";
 import { personalities, type Coords, type Personality } from "@/data/personalities";
-import { questions } from "@/data/questions";
+import { questions, type Question } from "@/data/questions";
 
 export type Answers = Record<string, number>; // questionId -> 1..5
 
 const AXIS_KEYS: (keyof Coords)[] = ["economic", "authority", "cultural"];
 
-export function scoreAnswers(answers: Answers): Coords {
+export function scoreAnswers(
+  answers: Answers,
+  itemBank: Question[] = questions,
+): Coords {
   const raw: Coords = { economic: 0, authority: 0, cultural: 0 };
   const maxAbs: Coords = { economic: 0, authority: 0, cultural: 0 };
 
-  for (const q of questions) {
+  for (const q of itemBank) {
     maxAbs[q.axis] += 2 * q.weight;
     const value = answers[q.id];
     if (value == null) continue;

@@ -3,6 +3,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Coords } from "@/data/personalities";
+import { questions } from "@/data/questions";
+import { getLocalePack, type LocaleId } from "@/data/localePacks";
 import {
   applyAdmirationPrior,
   scoreAnswers,
@@ -12,9 +14,11 @@ import {
 type SurveyState = {
   answers: Answers;
   admired: string[];
+  locale: LocaleId | null;
   step: number;
   resultCoords: Coords | null;
   rawCoords: Coords | null;
+  setLocale: (locale: LocaleId) => void;
   setAnswer: (id: string, value: number) => void;
   toggleAdmire: (id: string) => void;
   setStep: (step: number) => void;
@@ -27,9 +31,11 @@ export const useSurveyStore = create<SurveyState>()(
     (set, get) => ({
       answers: {},
       admired: [],
+      locale: null,
       step: 0,
       resultCoords: null,
       rawCoords: null,
+      setLocale: (locale) => set({ locale }),
       setAnswer: (id, value) =>
         set((s) => ({ answers: { ...s.answers, [id]: value } })),
       toggleAdmire: (id) =>
@@ -45,7 +51,10 @@ export const useSurveyStore = create<SurveyState>()(
         }),
       setStep: (step) => set({ step }),
       computeResult: () => {
-        const raw = scoreAnswers(get().answers);
+        const locale = get().locale ?? "global";
+        const pack = getLocalePack(locale);
+        const bank = [...questions, ...pack.questions];
+        const raw = scoreAnswers(get().answers, bank);
         const { coords } = applyAdmirationPrior(raw, get().admired);
         set({ rawCoords: raw, resultCoords: coords });
         return coords;
@@ -54,11 +63,12 @@ export const useSurveyStore = create<SurveyState>()(
         set({
           answers: {},
           admired: [],
+          locale: null,
           step: 0,
           resultCoords: null,
           rawCoords: null,
         }),
     }),
-    { name: "politicalgraph-survey-v1" },
+    { name: "poligraph-survey-v2" },
   ),
 );

@@ -9,6 +9,7 @@ import {
   likertLabels,
   type Question,
 } from "@/data/questions";
+import { getLocalePack, localePacks } from "@/data/localePacks";
 import { useSurveyStore } from "@/store/survey";
 import { encodeResultPayload } from "@/lib/scoring";
 
@@ -19,36 +20,53 @@ export default function SurveyPage() {
   const {
     answers,
     admired,
+    locale,
     step,
+    setLocale,
     setAnswer,
     toggleAdmire,
     setStep,
     computeResult,
   } = useSurveyStore();
 
-  const totalSteps = SECTIONS.length + 1; // + admire step
-  const isAdmireStep = step >= SECTIONS.length;
+  // step 0 = locale, 1..3 = sections, last = admire
+  const sectionOffset = 1;
+  const totalSteps = sectionOffset + SECTIONS.length + 1;
+  const isLocaleStep = step === 0;
+  const isAdmireStep = step === totalSteps - 1;
+  const sectionIndex = step - sectionOffset;
+  const isSectionStep = !isLocaleStep && !isAdmireStep;
+
+  const pack = getLocalePack(locale ?? "global");
+
+  const activeBank = useMemo(() => {
+    return [...questions, ...pack.questions];
+  }, [pack]);
 
   const sectionQuestions = useMemo(() => {
-    if (isAdmireStep) return [];
-    const section = SECTIONS[step];
-    return questions.filter((q) => q.section === section);
-  }, [step, isAdmireStep]);
+    if (!isSectionStep) return [];
+    const section = SECTIONS[sectionIndex];
+    return activeBank.filter((q) => q.section === section);
+  }, [isSectionStep, sectionIndex, activeBank]);
 
   const progress = ((step + 1) / totalSteps) * 100;
 
-  const sectionComplete = isAdmireStep
-    ? admired.length > 0
-    : sectionQuestions.every((q) => answers[q.id] != null);
+  const sectionComplete = isLocaleStep
+    ? locale != null
+    : isAdmireStep
+      ? admired.length > 0
+      : sectionQuestions.every((q) => answers[q.id] != null);
 
   const [error, setError] = useState<string | null>(null);
 
   function next() {
     if (!sectionComplete) {
       setError(
-        isAdmireStep
-          ? "Pick at least one option (including “prefer not to say”)."
-          : "Answer every statement in this section to continue.",
+        isLocaleStep
+          ? "Choose where we should contextualize current-affairs items."
+          : isAdmireStep
+            ? "Pick at least one option (including “prefer not to say”)."
+            : "Answer every statement in this section to continue.",
       );
       return;
     }
@@ -68,7 +86,10 @@ export default function SurveyPage() {
     if (step > 0) setStep(step - 1);
   }
 
-  const meta = !isAdmireStep ? sectionMeta[SECTIONS[step]] : null;
+  const meta = isSectionStep ? sectionMeta[SECTIONS[sectionIndex]] : null;
+  const contextualCount = sectionQuestions.filter((q) =>
+    pack.questions.some((pq) => pq.id === q.id),
+  ).length;
 
   return (
     <div className="survey-shell">
@@ -76,41 +97,86 @@ export default function SurveyPage() {
         <span style={{ width: `${progress}%` }} />
       </div>
 
-      {!isAdmireStep && meta ? (
+      {isLocaleStep && (
         <>
-          <p className="survey-section-label">
-            Section {step + 1} of {SECTIONS.length} · {meta.title}
+          <p className="survey-section-label">Step 1 · Context</p>
+          <h1>Where should we situate your map?</h1>
+          <p className="blurb">
+            Core value questions are global. Location adds regional framing and a
+            rotating current-affairs pack — still scored onto the{" "}
+            <strong>same fixed 3D axes</strong> used for every comparison.
           </p>
-          <h1>{meta.title}</h1>
-          <p className="blurb">{meta.blurb} Agree or disagree with each statement.</p>
-          <div className="question-stack">
-            {sectionQuestions.map((q) => (
-              <fieldset key={q.id} className="question">
-                <legend>
-                  <p>{q.text}</p>
-                </legend>
-                <div className="likert" role="radiogroup" aria-label={q.text}>
-                  {likertLabels.map((label, i) => {
-                    const value = i + 1;
-                    return (
-                      <label key={label}>
-                        <input
-                          type="radio"
-                          name={q.id}
-                          value={value}
-                          checked={answers[q.id] === value}
-                          onChange={() => setAnswer(q.id, value)}
-                        />
-                        {label}
-                      </label>
-                    );
-                  })}
-                </div>
-              </fieldset>
+          <div className="admire-grid">
+            {localePacks.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                className={`admire-chip ${locale === p.id ? "is-on" : ""}`}
+                onClick={() => setLocale(p.id)}
+              >
+                <strong style={{ display: "block" }}>{p.label}</strong>
+                <span style={{ fontSize: "0.78rem", color: "var(--ink-soft)" }}>
+                  {p.questions.length
+                    ? `${p.questions.length} contextual items · as of ${p.affairsAsOf}`
+                    : "Core values only"}
+                </span>
+              </button>
             ))}
           </div>
         </>
-      ) : (
+      )}
+
+      {isSectionStep && meta && (
+        <>
+          <p className="survey-section-label">
+            {pack.label} · {meta.title}
+            {contextualCount > 0
+              ? ` · ${contextualCount} location / affairs item${contextualCount > 1 ? "s" : ""}`
+              : ""}
+          </p>
+          <h1>{meta.title}</h1>
+          <p className="blurb">
+            {meta.blurb} Agree or disagree with each statement. Party names are
+            avoided on purpose.
+          </p>
+          <div className="question-stack">
+            {sectionQuestions.map((q) => {
+              const isContextual = pack.questions.some((pq) => pq.id === q.id);
+              return (
+                <fieldset key={q.id} className="question">
+                  <legend>
+                    {isContextual && (
+                      <span className="survey-section-label">
+                        Location / current affairs
+                      </span>
+                    )}
+                    <p>{q.text}</p>
+                  </legend>
+                  <div className="likert" role="radiogroup" aria-label={q.text}>
+                    {likertLabels.map((label, i) => {
+                      const value = i + 1;
+                      return (
+                        <label key={label}>
+                          <input
+                            type="radio"
+                            name={q.id}
+                            value={value}
+                            checked={answers[q.id] === value}
+                            onChange={() => setAnswer(q.id, value)}
+                          />
+                          {label}
+                        </label>
+                      );
+                    })}
+                  </div>
+                </fieldset>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      {isAdmireStep && (
         <>
           <p className="survey-section-label">Final step · Ideal person</p>
           <h1>Who do you admire or feel aligned with?</h1>

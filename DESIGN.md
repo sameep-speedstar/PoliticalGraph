@@ -1,8 +1,8 @@
-# PoliGraph — Product Design & Brainstorm
+# Poligraph — Product Design & Brainstorm
 
-> **Status:** Working MVP shipped as a 3-axis slice. North-star constitution + scope discipline live in [`DESIGN_RECONCILIATION.md`](./DESIGN_RECONCILIATION.md) (master prompt vs MVP). Do not treat this file alone as the locked final design until the checklist there is answered.
+> **Status:** Decisions locked in [`DESIGN_LOCKED.md`](./DESIGN_LOCKED.md). North-star vs scope: [`DESIGN_RECONCILIATION.md`](./DESIGN_RECONCILIATION.md). Mockups: `/mockup` and `web/public/mockups/`.
 
-**Product name:** PoliGraph  
+**Product name:** Poligraph  
 **Tagline:** *Understand how people think.*
 
 ## The core insight

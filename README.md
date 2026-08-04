@@ -1,6 +1,17 @@
-# PoliticalGraph
+# Poligraph
 
-3D political inclination mapping — survey yourself, explore public figures, see which thinking group you sit nearest.
+**Understand how people think.**
+
+Worldview mapping: survey yourself (location-aware + current affairs), explore evidence-backed public figures, compare on a **fixed 3D** ideological basis.
+
+## Locked decisions
+
+See [`DESIGN_LOCKED.md`](./DESIGN_LOCKED.md). Full reconciliation with the master prompt: [`DESIGN_RECONCILIATION.md`](./DESIGN_RECONCILIATION.md).
+
+- **Name:** Poligraph  
+- **Fixed 3D** for all comparisons  
+- **Dynamic questions** by location + current affairs  
+- **Human approval** before public scores publish  
 
 ## Quick start
 
@@ -10,18 +21,9 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+- App: [http://localhost:3000](http://localhost:3000)  
+- Mockups: [http://localhost:3000/mockup](http://localhost:3000/mockup)
 
-## What's in the MVP
+## Stack (MVP)
 
-- **3 axes:** Economic · Authority · Cultural identity
-- **Free questionnaire** with Likert statements, faith items, and ideal-person admiration
-- **Interactive 3D constellation** (react-three-fiber) of curated public figures
-- **Nearest thinking-group + personality matching**
-- **Methodology** page for transparency
-
-See [DESIGN.md](./DESIGN.md) for the full product brainstorm, scoring math, and research pipeline.
-
-## Stack
-
-Next.js 16 · TypeScript · Tailwind · Three.js / R3F · Zustand
+Next.js · TypeScript · Tailwind · Three.js / R3F · Zustand

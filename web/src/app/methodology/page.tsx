@@ -5,7 +5,7 @@ export default function MethodologyPage() {
     <article className="method-prose">
       <h1>Methodology</h1>
       <p>
-        PoliticalGraph is an interpretive atlas. It does not claim objective
+        Poligraph is an interpretive atlas. It does not claim objective
         truth about anyone&apos;s soul — it places answers and public records into
         a shared three-dimensional model so similarities are geometric and
         inspectable.

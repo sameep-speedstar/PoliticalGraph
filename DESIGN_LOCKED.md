@@ -1,0 +1,73 @@
+# Poligraph — Locked Design Decisions
+
+**Date locked:** 2026-08-04  
+**Product name:** **Poligraph**  
+**Tagline:** *Understand how people think.*
+
+## Decisions confirmed
+
+| Topic | Decision |
+|-------|----------|
+| Name | **Poligraph** (not PoliticalGraph / PoliGraph) |
+| Visualization | **Fixed 3D basis** for all users — stable comparison frame |
+| Survey | **Dynamic**: core global values + location pack + current affairs / general issues |
+| Public figure scores | **Human approval required** before publish (AI may draft only) |
+| Ethics | No good/bad ranking; no religion ranking; evidence + confidence on public scores |
+
+## Fixed 3D comparison basis (canonical)
+
+All users and figures project into the same space:
+
+| Axis | − | + | Drawn from 12D |
+|------|---|---|----------------|
+| **X Economic** | Redistribution / equality | Markets / property | D4 + D7 |
+| **Y Authority** | Liberty / civil constraint | Order / strong authority | D1 + D9 (+ D12) |
+| **Z Cultural identity** | Cosmopolitan / secular-plural | Particular / traditional-religious | D2 + D3 + D6 |
+
+Full 12D remains in profile radar, compare tables, and evidence — but **map distance and “closest figures” always use this fixed 3D** (or the full 12D vector with the same fixed projection for viz). Do not rotate axes per user or per session.
+
+## Dynamic survey model
+
+```
+Session questionnaire =
+  Core values bank (global, stable, maps to 12D)
++ Location pack (country/region norms & framing)
++ Current affairs pack (time-boxed public issues, still value-framed)
++ Admiration (secondary weight α ≤ 0.12)
+```
+
+Rules:
+
+- Still **avoid party-name shibboleths**; frame as values even when issue-specific.
+- Location changes *examples and salience*, not the meaning of axes.
+- Current-affairs items must declare `asOf` and expire/rotate; they never redefine the fixed 3D basis.
+- Every item records: `dimension_ids[]`, `locale`, `pack_id`, `asOf`.
+
+Example packs:
+
+- **IN**: federalism vs centre, religious majoritarianism vs secular republic, industrial policy  
+- **US**: speech/campus, immigration federalism, industrial tariffs  
+- **Global current**: trade blocs, AI regulation, climate vs growth — mapped onto existing dims
+
+## Human approval gate
+
+```
+AI draft score + evidence
+        ↓
+Editor review (accept / edit / reject per dimension)
+        ↓
+Published ideology_vector + evidence rows
+```
+
+No public dimension score without approved evidence.
+
+## Mockups
+
+Visual references (also in repo `web/public/mockups/`):
+
+1. Landing — brand-first hero + constellation  
+2. Survey — location + current-affairs context  
+3. Results — You on fixed 3D + nearest figures  
+4. Compare — Modi vs Trump on shared axes  
+
+Interactive gallery: `/mockup` in the web app.

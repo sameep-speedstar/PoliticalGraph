@@ -1,9 +1,11 @@
-# PoliGraph — Design Reconciliation
+# Poligraph — Design Reconciliation
 
-Comparison of the **PoliGraph master prompt** vs the **PoliticalGraph MVP**, and a recommended locked architecture.
+Comparison of the **Poligraph master prompt** vs the **MVP**, and the locked hybrid architecture.
 
-**Tagline candidate:** *Understand how people think.*  
-**Rename:** PoliticalGraph → **PoliGraph** (clearer product name).
+**Product name (locked):** **Poligraph**  
+**Tagline:** *Understand how people think.*
+
+See also: [`DESIGN_LOCKED.md`](./DESIGN_LOCKED.md) for confirmed decisions and mockups.
 
 ---
 
@@ -209,16 +211,16 @@ Neo4j (relationships), continuous crawl, public API, BigQuery analytics, multi-c
 
 ---
 
-## 5. Decision checklist (finalize with these answers)
+## 5. Decision checklist (LOCKED 2026-08-04)
 
-1. **Name:** PoliGraph — yes/no?  
-2. **12D internal + fixed 3D viz basis** — accept, or insist PCA-driven 3D?  
-3. **Phase 1 stack:** Next + Postgres only — accept?  
-4. **Survey length:** 36 fixed items now, adaptive later — accept?  
-5. **Human review gate** before any AI-scored figure publishes — accept?  
-6. **Merge candidates** for redundant dims after gold-set correlations — accept?
+1. **Name:** Poligraph — **yes**  
+2. **12D internal + fixed 3D viz basis** — **accepted (fixed basis for all comparisons)**  
+3. **Phase 1 stack:** Next + Postgres only — pending infra later; MVP stays Next-first  
+4. **Survey:** **dynamic** — core global + location pack + current affairs (not only 36 fixed)  
+5. **Human review gate** before any AI-scored figure publishes — **yes**  
+6. **Merge redundant dims after gold-set correlations** — still planned after gold set  
 
-Until these are locked, further build should only extend the current MVP toward this hybrid — not toward full AKS/Neo4j/Dataflow.
+Mockups: `web/public/mockups/` and `/mockup`.
 
 ---
 

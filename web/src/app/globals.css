@@ -683,6 +683,157 @@ input {
   font-size: 0.85rem;
 }
 
+/* ——— Mockup gallery ——— */
+.mockup-page {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 2rem clamp(1.25rem, 4vw, 3rem) 4rem;
+}
+
+.mockup-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1.5rem;
+  align-items: flex-end;
+  margin-bottom: 1.75rem;
+}
+
+.mockup-header h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  margin: 0.2rem 0 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+.mockup-lead {
+  margin: 0;
+  max-width: 36rem;
+  color: var(--ink-soft);
+}
+
+.lock-grid {
+  list-style: none;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+.lock-grid li {
+  padding: 0.9rem 1rem;
+  border-top: 2px solid var(--teal);
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.lock-grid li:nth-child(1) {
+  border-top-color: var(--copper);
+}
+
+.lock-grid li strong {
+  display: block;
+  font-size: 0.72rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+
+.lock-grid li span {
+  display: block;
+  margin-top: 0.35rem;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+
+.mockup-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 1rem;
+}
+
+.mockup-tabs button {
+  padding: 0.55rem 0.95rem;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.45);
+  border-radius: 999px;
+  cursor: pointer;
+  color: var(--ink-soft);
+}
+
+.mockup-tabs button.is-active {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+
+.mockup-frame {
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+.mockup-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.mockup-frame figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem 1.15rem;
+  border-top: 1px solid var(--line);
+  background: rgba(244, 247, 250, 0.9);
+}
+
+.mockup-frame figcaption strong {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+}
+
+.mockup-frame figcaption span {
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+
+.mockup-flow {
+  margin-top: 2.5rem;
+  max-width: 40rem;
+}
+
+.mockup-flow h2 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  margin: 0 0 0.75rem;
+}
+
+.mockup-flow ol {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: var(--ink-soft);
+}
+
+.mockup-flow li {
+  margin-bottom: 0.65rem;
+}
+
+.mockup-flow strong {
+  color: var(--ink);
+}
+
+@media (max-width: 800px) {
+  .lock-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 @media (max-width: 960px) {
   .hero {
     grid-template-columns: 1fr;

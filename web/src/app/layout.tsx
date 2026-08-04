@@ -15,9 +15,9 @@ const sora = Sora({
 });
 
 export const metadata: Metadata = {
-  title: "PoliticalGraph — 3D political inclination mapping",
+  title: "Poligraph — Understand how people think",
   description:
-    "Map your political, cultural, and religious inclinations in 3D space. Compare yourself with public figures from Soros to Modi to Musk.",
+    "Map your worldview in a fixed 3D ideological space. Compare with public figures using evidence-backed profiles.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -27,9 +27,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <SiteNav />
         <main className="flex-1">{children}</main>
         <footer className="site-footer">
-          PoliticalGraph is an interpretive atlas of ideas — not a moral score,
-          endorsement, or prediction market. Public-figure placements use openly
-          available signals and carry explicit confidence levels.
+          Poligraph is an interpretive atlas of ideas — not a moral score,
+          endorsement, or ranking of people or religions. Public-figure placements
+          require human-approved evidence and confidence levels.
         </footer>
       </body>
     </html>
