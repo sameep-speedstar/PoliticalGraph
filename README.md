@@ -2,18 +2,18 @@
 
 **Understand how people think.**
 
-Worldview mapping: survey yourself (location-aware + current affairs), explore evidence-backed public figures, compare on a **fixed 3D** ideological basis.
+Worldview mapping product — ships as pages on **[kniq.ai/poligraph](https://kniq.ai/poligraph)** (KNIQ · Speedstar AI Labs).
 
-## Locked decisions
+## Docs
 
-See [`DESIGN_LOCKED.md`](./DESIGN_LOCKED.md). Full reconciliation with the master prompt: [`DESIGN_RECONCILIATION.md`](./DESIGN_RECONCILIATION.md).
+| Doc | Purpose |
+|-----|---------|
+| [`DELIVERY_PLAN.md`](./DELIVERY_PLAN.md) | Stage-wise delivery + kniq mount |
+| [`DESIGN_LOCKED.md`](./DESIGN_LOCKED.md) | Locked product decisions |
+| [`web/DEPLOY_KNIQ.md`](./web/DEPLOY_KNIQ.md) | Cloudflare / path deploy steps |
+| [`DESIGN_RECONCILIATION.md`](./DESIGN_RECONCILIATION.md) | Master-prompt vs MVP |
 
-- **Name:** Poligraph  
-- **Fixed 3D** for all comparisons  
-- **Dynamic questions** by location + current affairs  
-- **Human approval** before public scores publish  
-
-## Quick start
+## Quick start (local)
 
 ```bash
 cd web
@@ -21,9 +21,20 @@ npm install
 npm run dev
 ```
 
-- App: [http://localhost:3000](http://localhost:3000)  
-- Mockups: [http://localhost:3000/mockup](http://localhost:3000/mockup)
+## Production build (kniq path prefix)
 
-## Stack (MVP)
+```bash
+cd web
+npm run build:kniq
+npm run start:kniq
+```
 
-Next.js · TypeScript · Tailwind · Three.js / R3F · Zustand
+Serves under `/poligraph/*`.
+
+## Stage overview
+
+1. **Stage 1** — Public MVP (survey, map, explore, compare) ← current  
+2. **Stage 1.5** — Wire Cloudflare route + kniq nav/sitemap  
+3. **Stage 2** — Evidence DB + human approval editor  
+4. **Stage 3** — AI draft research (still gated)  
+5. **Stage 4** — Organizations, timeline, API  

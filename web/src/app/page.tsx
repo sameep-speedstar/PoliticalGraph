@@ -24,10 +24,13 @@ export default function HomePage() {
             <Link href="/survey" className="btn btn-primary">
               Take the map — free
             </Link>
-            <Link href="/mockup" className="btn btn-ghost">
-              View mockups
+            <Link href="/compare" className="btn btn-ghost">
+              Compare figures
             </Link>
           </div>
+          <p style={{ marginTop: "1.25rem", fontSize: "0.85rem", color: "var(--ink-soft)" }}>
+            A KNIQ experiment · will live at kniq.ai/poligraph
+          </p>
         </div>
         <div className="hero-visual" aria-label="Interactive 3D ideological constellation">
           <PoliticalGraph3DDynamic

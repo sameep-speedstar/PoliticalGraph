@@ -74,6 +74,30 @@ input {
   gap: 0.65rem;
 }
 
+.brand-block {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.kniq-crumb {
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
+.kniq-crumb:hover {
+  color: var(--ink);
+}
+
+.crumb-sep {
+  color: var(--paper-deep);
+  font-weight: 400;
+}
+
 .brand-mark {
   width: 0.85rem;
   height: 0.85rem;
@@ -871,4 +895,94 @@ input {
   .likert label {
     font-size: 0.58rem;
   }
+}
+
+/* ——— Compare ——— */
+.compare-pickers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.compare-pickers label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.compare-pickers select {
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 0.4rem;
+  background: #fff;
+  color: var(--ink);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.95rem;
+}
+
+.compare-you {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+.compare-bar {
+  margin-top: 1rem;
+}
+
+.compare-bar-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.88rem;
+  margin-bottom: 0.35rem;
+}
+
+.compare-bar-vals {
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+}
+
+.compare-track {
+  position: relative;
+  height: 8px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--teal), var(--paper-deep), var(--copper));
+  opacity: 0.85;
+}
+
+.compare-marker {
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(15, 28, 46, 0.2);
+}
+
+.compare-marker--a {
+  background: var(--ink);
+}
+
+.compare-marker--b {
+  background: var(--copper);
+}
+
+.compare-poles {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  color: var(--ink-soft);
+  margin-top: 0.25rem;
 }

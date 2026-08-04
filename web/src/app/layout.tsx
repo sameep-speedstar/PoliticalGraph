@@ -27,9 +27,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <SiteNav />
         <main className="flex-1">{children}</main>
         <footer className="site-footer">
-          Poligraph is an interpretive atlas of ideas — not a moral score,
-          endorsement, or ranking of people or religions. Public-figure placements
-          require human-approved evidence and confidence levels.
+          Poligraph is a KNIQ experiment — an interpretive atlas of ideas, not a
+          moral score or ranking of people or religions. Public-figure placements
+          require human-approved evidence and confidence levels.{" "}
+          <a href="https://kniq.ai/">kniq.ai</a>
         </footer>
       </body>
     </html>
