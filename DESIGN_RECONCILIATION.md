@@ -228,4 +228,4 @@ Mockups: `web/public/mockups/` and `/mockup`.
 
 The master prompt is an excellent **constitution**. Taken literally as a Phase-1 build list, it is a trap.
 
-**PoliGraph should feel like the master prompt in principles and information architecture, and like the current MVP in shipping discipline:** explainable vectors, evidence or survey answers behind every number, a legible 3D map, and similarity that teaches *why* — then grow the graph and the AI pipeline once the gold set is credible.
+**Poligraph should feel like the master prompt in principles and information architecture, and like the current MVP in shipping discipline:** explainable vectors, evidence or survey answers behind every number, a legible 3D map, and similarity that teaches *why* — then grow the graph and the AI pipeline once the gold set is credible.
