@@ -172,6 +172,13 @@ input {
   max-width: 32rem;
 }
 
+.share-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
 .cta-row {
   display: flex;
   flex-wrap: wrap;

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { PoliticalGraph3DDynamic } from "@/components/PoliticalGraph3DDynamic";
+import { ShareOnX } from "@/components/ShareOnX";
 import type { Personality } from "@/data/personalities";
 import { personalities } from "@/data/personalities";
 
@@ -28,9 +29,10 @@ export default function HomePage() {
             <Link href="/compare" className="btn btn-ghost">
               Compare figures
             </Link>
+            <ShareOnX />
           </div>
           <p style={{ marginTop: "1.25rem", fontSize: "0.85rem", color: "var(--ink-soft)" }}>
-            A KNIQ experiment · will live at kniq.ai/poligraph
+            A KNIQ experiment · kniq.ai/poligraph
           </p>
         </div>
         <div className="hero-visual" aria-label="Interactive 3D ideological constellation">
