@@ -474,6 +474,49 @@ input {
   flex: 1;
   min-height: 420px;
   width: 100%;
+  position: relative;
+}
+
+.graph-hint {
+  position: absolute;
+  left: 0.85rem;
+  bottom: 0.75rem;
+  z-index: 2;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  background: rgba(244, 247, 250, 0.82);
+  padding: 0.3rem 0.55rem;
+  border-radius: 0.3rem;
+  pointer-events: none;
+}
+
+.graph-view-bar {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.7rem;
+  z-index: 3;
+  display: flex;
+  gap: 0.3rem;
+}
+
+.graph-view-bar button {
+  padding: 0.35rem 0.55rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--ink-soft);
+  border-radius: 0.3rem;
+  cursor: pointer;
+}
+
+.graph-view-bar button.is-on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
 }
 
 .graph-canvas--loading {
