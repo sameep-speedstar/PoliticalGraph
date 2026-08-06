@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { PoliticalGraph3DDynamic } from "@/components/PoliticalGraph3DDynamic";
 import {
-  personalities,
+  publishedFigures,
   type Personality,
   type Coords,
 } from "@/data/personalities";
@@ -67,9 +67,10 @@ export default function ComparePage() {
   const [idA, setIdA] = useState("narendra-modi");
   const [idB, setIdB] = useState("donald-trump");
   const [includeYou, setIncludeYou] = useState(false);
+  const figures = publishedFigures();
 
-  const a = personalities.find((p) => p.id === idA) ?? personalities[0];
-  const b = personalities.find((p) => p.id === idB) ?? personalities[1];
+  const a = figures.find((p) => p.id === idA) ?? figures[0];
+  const b = figures.find((p) => p.id === idB) ?? figures[1];
 
   const sim = similarityPercent(a.coords, b.coords);
   const { overlap, difference } = overlapCopy(a.coords, b.coords);
@@ -123,7 +124,7 @@ export default function ComparePage() {
             <label>
               Figure A
               <select value={idA} onChange={(e) => setIdA(e.target.value)}>
-                {personalities.map((p) => (
+                {figures.map((p) => (
                   <option key={p.id} value={p.id} disabled={p.id === idB}>
                     {p.name}
                   </option>
@@ -133,7 +134,7 @@ export default function ComparePage() {
             <label>
               Figure B
               <select value={idB} onChange={(e) => setIdB(e.target.value)}>
-                {personalities.map((p) => (
+                {figures.map((p) => (
                   <option key={p.id} value={p.id} disabled={p.id === idA}>
                     {p.name}
                   </option>

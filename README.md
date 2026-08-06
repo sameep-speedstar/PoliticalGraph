@@ -34,8 +34,8 @@ Serves under `/poligraph/*`.
 
 ## Stage overview
 
-1. **Stage 1** — Public MVP (survey, map, explore, compare) ← current  
-2. **Stage 1.5** — Wire Cloudflare route + kniq nav/sitemap  
-3. **Stage 2** — Evidence DB + human approval editor  
+1. **Stage 1** — Public MVP (survey, map, explore, compare) ✅  
+2. **Stage 1.5** — Wire Cloudflare route + kniq nav/sitemap ✅  
+3. **Stage 2** — Evidence DB + human approval editor ← current  
 4. **Stage 3** — AI draft research (still gated)  
 5. **Stage 4** — Organizations, timeline, API  

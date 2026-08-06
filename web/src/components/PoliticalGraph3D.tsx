@@ -10,7 +10,7 @@ import {
 } from "@react-three/drei";
 import { useEffect, useMemo, useState, Suspense } from "react";
 import type { Coords, Personality } from "@/data/personalities";
-import { personalities as allPersonalities } from "@/data/personalities";
+import { publishedFigures } from "@/data/personalities";
 
 const SCALE = 0.045; // map ±100 → ±4.5 world units
 const HALF = 4.5; // half-extent of the idea cube
@@ -343,7 +343,7 @@ function CameraRig({ view }: { view: ViewPreset }) {
 }
 
 export function PoliticalGraph3D({
-  personalities = allPersonalities,
+  personalities = publishedFigures(),
   userCoords,
   selectedId,
   highlightIds,

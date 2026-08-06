@@ -5,7 +5,7 @@ import { useState } from "react";
 import { PoliticalGraph3DDynamic } from "@/components/PoliticalGraph3DDynamic";
 import { ShareOnX } from "@/components/ShareOnX";
 import type { Personality } from "@/data/personalities";
-import { personalities } from "@/data/personalities";
+import { publishedFigures } from "@/data/personalities";
 
 export default function HomePage() {
   const [selected, setSelected] = useState<Personality | null>(null);
@@ -18,7 +18,7 @@ export default function HomePage() {
           <h1>Understand how people think.</h1>
           <p className="hero-lead">
             A free, location-aware survey places you on a fixed three-axis map —
-            economy, authority, cultural identity — beside {personalities.length}+
+            economy, authority, cultural identity — beside {publishedFigures().length}+
             public figures backed by evidence notes and human review. Guest-first.
             No account required.
           </p>
@@ -37,7 +37,7 @@ export default function HomePage() {
         </div>
         <div className="hero-visual" aria-label="Interactive 3D ideological constellation">
           <PoliticalGraph3DDynamic
-            personalities={personalities}
+            personalities={publishedFigures()}
             selectedId={selected?.id}
             onSelect={setSelected}
           />

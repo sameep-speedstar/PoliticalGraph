@@ -1,5 +1,9 @@
 import { clusters, type ThinkingCluster } from "@/data/clusters";
-import { personalities, type Coords, type Personality } from "@/data/personalities";
+import {
+  publishedFigures,
+  type Coords,
+  type Personality,
+} from "@/data/personalities";
 import { questions, type Question } from "@/data/questions";
 import {
   scoreAnswered,
@@ -28,7 +32,7 @@ export function applyAdmirationPrior(
 ): { coords: Coords; adjusted: boolean } {
   const figures = admiredIds
     .filter((id) => id !== "none")
-    .map((id) => personalities.find((p) => p.id === id))
+    .map((id) => publishedFigures().find((p) => p.id === id))
     .filter((p): p is Personality => Boolean(p));
 
   if (!figures.length) return { coords, adjusted: false };
@@ -65,7 +69,7 @@ export function similarityPercent(a: Coords, b: Coords): number {
 }
 
 export function nearestPersonalities(coords: Coords, n = 5) {
-  return [...personalities]
+  return [...publishedFigures()]
     .map((p) => ({
       personality: p,
       distance: distance(coords, p.coords),

@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { PoliticalGraph3DDynamic } from "@/components/PoliticalGraph3DDynamic";
 import { PersonalityPanel } from "@/components/PersonalityPanel";
 import {
-  personalities,
+  publishedFigures,
   searchPersonalities,
   type Personality,
 } from "@/data/personalities";
@@ -39,7 +39,7 @@ export default function ExplorePage() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<(typeof FILTERS)[number]["id"]>("all");
   const [selected, setSelected] = useState<Personality | null>(
-    personalities.find((p) => p.id === "elon-musk") ?? personalities[0],
+    publishedFigures().find((p) => p.id === "elon-musk") ?? publishedFigures()[0],
   );
 
   const filtered = useMemo(() => {
@@ -60,7 +60,7 @@ export default function ExplorePage() {
             aria-label="Search public figures"
           />
           <span style={{ fontSize: "0.85rem", color: "var(--ink-soft)" }}>
-            {filtered.length} / {personalities.length} figures
+            {filtered.length} / {publishedFigures().length} figures
           </span>
         </div>
         <div className="filter-row">
@@ -76,7 +76,7 @@ export default function ExplorePage() {
           ))}
         </div>
         <PoliticalGraph3DDynamic
-          personalities={query || filter !== "all" ? filtered : personalities}
+          personalities={query || filter !== "all" ? filtered : publishedFigures()}
           selectedId={selected?.id}
           highlightIds={query || filter !== "all" ? highlightIds : undefined}
           onSelect={(p) => setSelected(p)}

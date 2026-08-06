@@ -59,13 +59,15 @@ export default function MethodologyPage() {
         speeches and platforms, legislative or governing behavior, documented
         funding and organizational ties, and corporate or institutional roles.
         Each dossier lists a short rationale, confidence (high / medium / low),
-        and source themes. Positions carry an <code>asOf</code> date because
-        living actors drift.
+        source themes, and <strong>per-axis evidence rows</strong>. A figure only
+        appears on the public atlas when status is <code>published</code> and every
+        axis has at least one human-approved evidence row. Positions carry an{" "}
+        <code>asOf</code> date because living actors drift.
       </p>
       <p>
         Future versions can propose updates from speech corpora and vote
         databases — with human editorial review before publish, especially for
-        heads of state.
+        heads of state. The Stage 2 editor enforces draft → approve → publish.
       </p>
 
       <h2>Thinking groups</h2>

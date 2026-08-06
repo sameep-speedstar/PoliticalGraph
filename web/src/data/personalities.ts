@@ -9,6 +9,9 @@ export type Coords = {
   cultural: number;
 };
 
+import type { EvidenceRow, PublishStatus } from "@/lib/publishGate";
+export type { EvidenceRow, PublishStatus };
+
 export type Personality = {
   id: string;
   name: string;
@@ -22,14 +25,28 @@ export type Personality = {
   rationale: string;
   sources: { title: string; url?: string }[];
   asOf: string;
+  /** Stage 2 trust fields — hydrated if omitted on seeds */
+  status: PublishStatus;
+  evidence: EvidenceRow[];
+  approvedBy?: string;
+  approvedAt?: string;
+};
+
+/** Seed shape before hydrate (status/evidence optional). */
+export type PersonalitySeed = Omit<Personality, "status" | "evidence"> & {
+  status?: PublishStatus;
+  evidence?: EvidenceRow[];
+  approvedBy?: string;
+  approvedAt?: string;
 };
 
 /**
  * Hand-scored MVP seeds from publicly known positions, rhetoric, and institutional roles.
  * Coordinates are interpretive composites — see DESIGN.md and /methodology.
  * Not endorsements. Uncertainty is reflected in `confidence`.
+ * Stage 2: omit status/evidence → hydrated as published with seed evidence rows.
  */
-export const personalities: Personality[] = [
+export const personalities: PersonalitySeed[] = [
   {
     id: "george-soros",
     name: "George Soros",
@@ -628,14 +645,34 @@ export const personalities: Personality[] = [
   },
 ];
 
+import { canPublish, resolveTrustFields } from "@/lib/publishGate";
+
+export function hydratePersonality(seed: PersonalitySeed): Personality {
+  return resolveTrustFields(seed) as Personality;
+}
+
+/** Hydrated catalog. Prefer publishedFigures() for public UI. */
+export const personalitiesHydrated: Personality[] =
+  personalities.map(hydratePersonality);
+
+/** Public atlas — only human-publishable figures. */
+export function publishedFigures(
+  catalog: Personality[] = personalitiesHydrated,
+): Personality[] {
+  return catalog.filter(
+    (p) => p.status === "published" && canPublish(p.evidence),
+  );
+}
+
 export function getPersonality(id: string) {
-  return personalities.find((p) => p.id === id);
+  return personalitiesHydrated.find((p) => p.id === id);
 }
 
 export function searchPersonalities(query: string) {
+  const list = publishedFigures();
   const q = query.trim().toLowerCase();
-  if (!q) return personalities;
-  return personalities.filter(
+  if (!q) return list;
+  return list.filter(
     (p) =>
       p.name.toLowerCase().includes(q) ||
       p.shortName.toLowerCase().includes(q) ||
@@ -653,7 +690,7 @@ export function personalitiesByRoleBucket() {
     business: [] as Personality[],
     religious: [] as Personality[],
   };
-  for (const p of personalities) {
+  for (const p of publishedFigures()) {
     const roles = p.roles.join(" ").toLowerCase();
     if (/president|prime minister|chancellor|representative|senator|opposition|minister/.test(roles)) {
       buckets.politicians.push(p);

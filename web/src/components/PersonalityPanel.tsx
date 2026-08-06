@@ -76,6 +76,31 @@ export function PersonalityPanel({
       <h3>Why here</h3>
       <p className="rationale">{person.rationale}</p>
 
+      {person.evidence?.length > 0 && (
+        <>
+          <h3>Evidence by axis</h3>
+          <ul className="evidence-list">
+            {person.evidence
+              .filter((e) => e.approved)
+              .map((e) => (
+                <li key={e.id}>
+                  <span className="evidence-axis">{e.axis}</span>
+                  <p>{e.claim}</p>
+                  <span className="evidence-source">
+                    {e.sourceUrl ? (
+                      <a href={e.sourceUrl} target="_blank" rel="noreferrer">
+                        {e.sourceTitle}
+                      </a>
+                    ) : (
+                      e.sourceTitle
+                    )}
+                  </span>
+                </li>
+              ))}
+          </ul>
+        </>
+      )}
+
       <h3>Public signals</h3>
       <ul className="sources">
         {person.sources.map((s) => (
@@ -90,6 +115,9 @@ export function PersonalityPanel({
           </li>
         ))}
       </ul>
+      {person.status && person.status !== "published" && (
+        <p className="confidence">Status: {person.status} (not on public atlas)</p>
+      )}
     </aside>
   );
 }

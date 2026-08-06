@@ -90,14 +90,19 @@ Do **not** block Stage 1 product work on full kniq monorepo migration.
 
 ### Stage 2 — Trust backend
 
-| Deliverable |
-|-------------|
-| Postgres (+ optional pgvector) for figures, evidence, approvals |
-| Editor UI: draft → human approve → publish |
-| Evidence rows required per published dimension |
-| Expand to **100** public figures |
-| **Optional** consumer auth (save map) — survey stays guest-first |
-| Coarse IP→country hint only (confirm/override); no constituency-from-IP |
+| Deliverable | Status |
+|-------------|--------|
+| Postgres / D1 schema (`web/db/schema.sql`) | Done (schema) |
+| Editor UI: draft → human approve → publish | Done (`/editor`, local overlay + JSON export) |
+| Evidence rows required per published dimension | Done (publish gate) |
+| Public surfaces read **published only** | Done |
+| Expand to **100** public figures | Next |
+| Wire D1/Postgres + auth for editor | Next |
+| **Optional** consumer auth (save map) | Later |
+| Coarse IP→country hint only | Later |
+
+**Editor:** unlisted `/poligraph/editor/` — passphrase unlock (default `poligraph-edit`, override with `NEXT_PUBLIC_EDITOR_PASS`). Drafts in `localStorage`; **Export JSON** to commit into seed until D1 is live.
+
 
 ### Stage 2.5 — Poligraph Insights (B2B, opt-in only)
 
