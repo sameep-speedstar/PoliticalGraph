@@ -1,33 +1,24 @@
 import { clusters, type ThinkingCluster } from "@/data/clusters";
 import { personalities, type Coords, type Personality } from "@/data/personalities";
 import { questions, type Question } from "@/data/questions";
+import {
+  scoreAnswered,
+  type AxisConfidence,
+  overallConfidence,
+} from "@/lib/adaptive";
 
 export type Answers = Record<string, number>; // questionId -> 1..5
 
-const AXIS_KEYS: (keyof Coords)[] = ["economic", "authority", "cultural"];
-
+/** @deprecated Prefer scoreAnswered — kept as alias for answered-only scoring. */
 export function scoreAnswers(
   answers: Answers,
   itemBank: Question[] = questions,
 ): Coords {
-  const raw: Coords = { economic: 0, authority: 0, cultural: 0 };
-  const maxAbs: Coords = { economic: 0, authority: 0, cultural: 0 };
-
-  for (const q of itemBank) {
-    maxAbs[q.axis] += 2 * q.weight;
-    const value = answers[q.id];
-    if (value == null) continue;
-    const centered = value - 3; // −2..+2
-    raw[q.axis] += centered * q.weight * q.direction;
-  }
-
-  const coords: Coords = { economic: 0, authority: 0, cultural: 0 };
-  for (const axis of AXIS_KEYS) {
-    const denom = maxAbs[axis] || 1;
-    coords[axis] = clamp(Math.round((100 * raw[axis]) / denom), -100, 100);
-  }
-  return coords;
+  return scoreAnswered(answers, itemBank);
 }
+
+export type { AxisConfidence };
+export { overallConfidence };
 
 /** Soft pull toward admired figures — capped so the survey still dominates. */
 export function applyAdmirationPrior(
@@ -99,6 +90,9 @@ export function religiosityFromAnswers(answers: Answers): {
   label: string;
   score: number;
 } {
+  if (answers.c3 == null && answers.c6 == null) {
+    return { label: "Not probed this run", score: 0 };
+  }
   // c3 agree → religious public role; c6 agree → secular personal compass
   const c3 = answers.c3 ?? 3;
   const c6 = answers.c6 ?? 3;
@@ -141,6 +135,8 @@ function clamp(n: number, min: number, max: number) {
 export function encodeResultPayload(payload: {
   coords: Coords;
   admired: string[];
+  confidence?: AxisConfidence;
+  questionsAnswered?: number;
 }): string {
   if (typeof btoa === "undefined") {
     return Buffer.from(JSON.stringify(payload)).toString("base64url");
@@ -155,6 +151,8 @@ export function encodeResultPayload(payload: {
 export function decodeResultPayload(token: string): {
   coords: Coords;
   admired: string[];
+  confidence?: AxisConfidence;
+  questionsAnswered?: number;
 } | null {
   try {
     const padded = token.replace(/-/g, "+").replace(/_/g, "/");
@@ -173,6 +171,11 @@ export function decodeResultPayload(token: string): {
     return {
       coords: data.coords,
       admired: Array.isArray(data.admired) ? data.admired : [],
+      confidence: data.confidence,
+      questionsAnswered:
+        typeof data.questionsAnswered === "number"
+          ? data.questionsAnswered
+          : undefined,
     };
   } catch {
     return null;

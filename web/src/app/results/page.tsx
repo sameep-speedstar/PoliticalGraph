@@ -17,8 +17,10 @@ import {
   nearestPersonalities,
   religiosityFromAnswers,
   similarityPercent,
+  overallConfidence,
   type Answers,
 } from "@/lib/scoring";
+import { confidenceLabel } from "@/lib/adaptive";
 
 function ResultsInner() {
   const search = useSearchParams();
@@ -32,10 +34,21 @@ function ResultsInner() {
     const token = search.get("r");
     if (token) return decodeResultPayload(token);
     if (store.resultCoords) {
-      return { coords: store.resultCoords, admired: store.admired };
+      return {
+        coords: store.resultCoords,
+        admired: store.admired,
+        confidence: store.resultConfidence ?? undefined,
+        questionsAnswered: store.questionsAnswered || undefined,
+      };
     }
     return null;
-  }, [search, store.resultCoords, store.admired]);
+  }, [
+    search,
+    store.resultCoords,
+    store.admired,
+    store.resultConfidence,
+    store.questionsAnswered,
+  ]);
 
   const coords = payload?.coords ?? null;
   const neighbors = useMemo(
@@ -67,7 +80,7 @@ function ResultsInner() {
     );
   }
 
-  if (!coords) {
+  if (!coords || !payload) {
     return (
       <div className="survey-shell">
         <h1>No map yet</h1>
@@ -80,6 +93,8 @@ function ResultsInner() {
   }
 
   const primary = clusterHits[0]?.cluster;
+  const conf = payload.confidence;
+  const overall = conf ? overallConfidence(conf) : null;
 
   return (
     <div className="map-layout">
@@ -140,6 +155,31 @@ function ResultsInner() {
             </span>
             <span>Faith tag · {religion.label}</span>
           </div>
+          {conf && overall != null && (
+            <div className="confidence-strip" style={{ marginTop: "1rem" }}>
+              <div className="confidence-strip-item" style={{ gridColumn: "1 / -1" }}>
+                <span>Adaptive confidence</span>
+                <div className="confidence-bar">
+                  <i style={{ width: `${overall}%` }} />
+                </div>
+                <em>
+                  {overall}% · {confidenceLabel(overall)}
+                  {payload.questionsAnswered
+                    ? ` · ${payload.questionsAnswered} Qs`
+                    : ""}
+                </em>
+              </div>
+              {(["economic", "authority", "cultural"] as const).map((axis) => (
+                <div key={axis} className="confidence-strip-item">
+                  <span>{axis}</span>
+                  <div className="confidence-bar">
+                    <i style={{ width: `${conf[axis]}%` }} />
+                  </div>
+                  <em>{conf[axis]}%</em>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="results-hero">

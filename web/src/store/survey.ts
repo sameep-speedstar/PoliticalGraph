@@ -7,21 +7,29 @@ import { questions } from "@/data/questions";
 import { getLocalePack, type LocaleId } from "@/data/localePacks";
 import {
   applyAdmirationPrior,
-  scoreAnswers,
   type Answers,
+  type AxisConfidence,
 } from "@/lib/scoring";
+import {
+  estimateAdaptive,
+  scoreAnswered,
+} from "@/lib/adaptive";
 
 type SurveyState = {
   answers: Answers;
   admired: string[];
   locale: LocaleId | null;
+  /** 0 = locale, 1 = adaptive Qs, 2 = admire */
   step: number;
   resultCoords: Coords | null;
   rawCoords: Coords | null;
+  resultConfidence: AxisConfidence | null;
+  questionsAnswered: number;
   setLocale: (locale: LocaleId) => void;
   setAnswer: (id: string, value: number) => void;
   toggleAdmire: (id: string) => void;
   setStep: (step: number) => void;
+  activeBank: () => typeof questions;
   computeResult: () => Coords;
   reset: () => void;
 };
@@ -35,6 +43,8 @@ export const useSurveyStore = create<SurveyState>()(
       step: 0,
       resultCoords: null,
       rawCoords: null,
+      resultConfidence: null,
+      questionsAnswered: 0,
       setLocale: (locale) => set({ locale }),
       setAnswer: (id, value) =>
         set((s) => ({ answers: { ...s.answers, [id]: value } })),
@@ -50,13 +60,24 @@ export const useSurveyStore = create<SurveyState>()(
           };
         }),
       setStep: (step) => set({ step }),
-      computeResult: () => {
+      activeBank: () => {
         const locale = get().locale ?? "global";
         const pack = getLocalePack(locale);
-        const bank = [...questions, ...pack.questions];
-        const raw = scoreAnswers(get().answers, bank);
+        return [...questions, ...pack.questions];
+      },
+      computeResult: () => {
+        const bank = get().activeBank();
+        const answers = get().answers;
+        const estimate = estimateAdaptive(answers, bank);
+        const raw = scoreAnswered(answers, bank);
         const { coords } = applyAdmirationPrior(raw, get().admired);
-        set({ rawCoords: raw, resultCoords: coords });
+        const answered = Object.keys(answers).length;
+        set({
+          rawCoords: raw,
+          resultCoords: coords,
+          resultConfidence: estimate.confidence,
+          questionsAnswered: answered,
+        });
         return coords;
       },
       reset: () =>
@@ -67,8 +88,10 @@ export const useSurveyStore = create<SurveyState>()(
           step: 0,
           resultCoords: null,
           rawCoords: null,
+          resultConfidence: null,
+          questionsAnswered: 0,
         }),
     }),
-    { name: "poligraph-survey-v2" },
+    { name: "poligraph-survey-v3-adaptive" },
   ),
 );

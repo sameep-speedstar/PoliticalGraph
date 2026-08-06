@@ -5,9 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   admireOptions,
   questions,
-  sectionMeta,
   likertLabels,
-  type Question,
 } from "@/data/questions";
 import {
   getLocalePack,
@@ -17,8 +15,16 @@ import {
 import { useSurveyStore } from "@/store/survey";
 import { encodeResultPayload } from "@/lib/scoring";
 import { guessLocaleFromBrowser } from "@/lib/geoGuess";
-
-const SECTIONS: Question["section"][] = ["politics", "society", "religion"];
+import {
+  ADAPTIVE,
+  AXIS_KEYS,
+  EXPRESS_IDS,
+  estimateAdaptive,
+  expressQuestions,
+  pickNextQuestion,
+  confidenceLabel,
+  overallConfidence,
+} from "@/lib/adaptive";
 
 export default function SurveyPage() {
   const router = useRouter();
@@ -38,6 +44,9 @@ export default function SurveyPage() {
     country: string | null;
     suggestedLocale: LocaleId;
   } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [queue, setQueue] = useState<string[]>([...EXPRESS_IDS]);
+  const [qIndex, setQIndex] = useState(0);
 
   useEffect(() => {
     const guess = guessLocaleFromBrowser();
@@ -47,66 +56,131 @@ export default function SurveyPage() {
     });
   }, []);
 
-  const sectionOffset = 1;
-  const totalSteps = sectionOffset + SECTIONS.length + 1;
-  const isLocaleStep = step === 0;
-  const isAdmireStep = step === totalSteps - 1;
-  const sectionIndex = step - sectionOffset;
-  const isSectionStep = !isLocaleStep && !isAdmireStep;
+  // Reset adaptive queue when locale changes (new bank)
+  useEffect(() => {
+    if (locale == null) return;
+    setQueue([...EXPRESS_IDS]);
+    setQIndex(0);
+  }, [locale]);
 
-  const pack = getLocalePack(locale ?? "global");
-
-  const activeBank = useMemo(() => {
+  const bank = useMemo(() => {
+    const pack = getLocalePack(locale ?? "global");
     return [...questions, ...pack.questions];
-  }, [pack]);
+  }, [locale]);
 
-  const sectionQuestions = useMemo(() => {
-    if (!isSectionStep) return [];
-    const section = SECTIONS[sectionIndex];
-    return activeBank.filter((q) => q.section === section);
-  }, [isSectionStep, sectionIndex, activeBank]);
+  const estimate = useMemo(
+    () => estimateAdaptive(answers, bank),
+    [answers, bank],
+  );
 
-  const progress = ((step + 1) / totalSteps) * 100;
+  const isLocaleStep = step === 0;
+  const isAdaptiveStep = step === 1;
+  const isAdmireStep = step === 2;
 
-  const sectionComplete = isLocaleStep
-    ? locale != null
+  const currentId = isAdaptiveStep ? queue[qIndex] : null;
+  const currentQuestion = currentId
+    ? bank.find((q) => q.id === currentId) ?? null
+    : null;
+
+  const expressCount = expressQuestions(bank).length;
+  const answeredCount = Object.keys(answers).length;
+  const progress = isLocaleStep
+    ? 8
     : isAdmireStep
-      ? admired.length > 0
-      : sectionQuestions.every((q) => answers[q.id] != null);
+      ? 92
+      : Math.min(85, 12 + (answeredCount / ADAPTIVE.maxCoreItems) * 70);
 
-  const [error, setError] = useState<string | null>(null);
+  const phaseLabel =
+    answeredCount < expressCount
+      ? "Express map"
+      : estimate.done
+        ? "Ready"
+        : "Refining weak axes";
+
+  const overall = overallConfidence(estimate.confidence);
 
   function next() {
-    if (!sectionComplete) {
-      setError(
-        isLocaleStep
-          ? "Choose where we should contextualize current-affairs items."
-          : isAdmireStep
-            ? "Pick at least one option (including “prefer not to say”)."
-            : "Answer every statement in this section to continue.",
-      );
-      return;
-    }
-    setError(null);
-    if (step < totalSteps - 1) {
-      setStep(step + 1);
+    if (isLocaleStep) {
+      if (locale == null) {
+        setError("Choose where we should contextualize current-affairs items.");
+        return;
+      }
+      setError(null);
+      setQueue([...EXPRESS_IDS]);
+      setQIndex(0);
+      setStep(1);
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
-    const coords = computeResult();
-    const token = encodeResultPayload({ coords, admired });
-    router.push(`/results?r=${token}`);
+
+    if (isAdaptiveStep) {
+      if (!currentQuestion || answers[currentQuestion.id] == null) {
+        setError("Pick a response to continue.");
+        return;
+      }
+      setError(null);
+
+      const nextAnswers = {
+        ...answers,
+        [currentQuestion.id]: answers[currentQuestion.id]!,
+      };
+      const nextEstimate = estimateAdaptive(nextAnswers, bank);
+
+      // More items already in queue ahead of us
+      if (qIndex + 1 < queue.length) {
+        setQIndex(qIndex + 1);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+
+      if (!nextEstimate.done) {
+        const pick = pickNextQuestion(nextAnswers, bank, nextEstimate);
+        if (pick && !queue.includes(pick.id)) {
+          setQueue((q) => [...q, pick.id]);
+          setQIndex(qIndex + 1);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          return;
+        }
+      }
+
+      setStep(2);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    if (isAdmireStep) {
+      if (admired.length === 0) {
+        setError("Pick at least one option (including “prefer not to say”).");
+        return;
+      }
+      setError(null);
+      const coords = computeResult();
+      const est = estimateAdaptive(answers, bank);
+      const token = encodeResultPayload({
+        coords,
+        admired,
+        confidence: est.confidence,
+        questionsAnswered: Object.keys(answers).length,
+      });
+      router.push(`/results?r=${token}`);
+    }
   }
 
   function back() {
     setError(null);
-    if (step > 0) setStep(step - 1);
+    if (isAdmireStep) {
+      setStep(1);
+      setQIndex(Math.max(0, queue.length - 1));
+      return;
+    }
+    if (isAdaptiveStep) {
+      if (qIndex > 0) {
+        setQIndex(qIndex - 1);
+        return;
+      }
+      setStep(0);
+    }
   }
-
-  const meta = isSectionStep ? sectionMeta[SECTIONS[sectionIndex]] : null;
-  const contextualCount = sectionQuestions.filter((q) =>
-    pack.questions.some((pq) => pq.id === q.id),
-  ).length;
 
   return (
     <div className="survey-shell">
@@ -119,17 +193,15 @@ export default function SurveyPage() {
           <p className="survey-section-label">Step 1 · Context</p>
           <h1>Where should we situate your map?</h1>
           <p className="blurb">
-            Core value questions are global. Location adds regional framing and a
-            rotating current-affairs pack — still scored onto the{" "}
-            <strong>same fixed 3D axes</strong> used for every comparison. No
-            account needed.
+            Then an <strong>adaptive</strong> survey asks as few questions as
+            needed — usually 6–12 — stopping when each axis is confident enough.
+            Same fixed 3D basis for everyone. No account needed.
           </p>
           {geoHint?.suggestedLocale && geoHint.suggestedLocale !== "global" && (
             <p className="geo-hint">
               Browser hint suggests pack{" "}
               <strong>{geoHint.suggestedLocale}</strong> ({geoHint.country}).
-              Confirm or change below — guesses are coarse and often wrong on
-              travel/VPN. Not used as your home constituency.
+              Confirm or change below.
               {locale == null && (
                 <>
                   {" "}
@@ -155,8 +227,8 @@ export default function SurveyPage() {
                 <strong style={{ display: "block" }}>{p.label}</strong>
                 <span style={{ fontSize: "0.78rem", color: "var(--ink-soft)" }}>
                   {p.questions.length
-                    ? `${p.questions.length} contextual items · as of ${p.affairsAsOf}`
-                    : "Core values only"}
+                    ? `May add up to ${p.questions.length} local refine items`
+                    : "Core adaptive path only"}
                 </span>
               </button>
             ))}
@@ -164,53 +236,71 @@ export default function SurveyPage() {
         </>
       )}
 
-      {isSectionStep && meta && (
+      {isAdaptiveStep && currentQuestion && (
         <>
           <p className="survey-section-label">
-            {pack.label} · {meta.title}
-            {contextualCount > 0
-              ? ` · ${contextualCount} location / affairs item${contextualCount > 1 ? "s" : ""}`
-              : ""}
+            {phaseLabel} · Question {qIndex + 1}
+            {queue.length > expressCount ? ` of ~${queue.length}+` : ` of ${expressCount}+`}
+            {" · "}
+            {currentQuestion.axis}
           </p>
-          <h1>{meta.title}</h1>
+          <h1>
+            {answeredCount < expressCount ? "Quick read" : "Sharpening your map"}
+          </h1>
           <p className="blurb">
-            {meta.blurb} Agree or disagree with each statement. Party names are
-            avoided on purpose.
+            {answeredCount < expressCount
+              ? "Six core value questions first. We only add more where your answers are still fuzzy."
+              : `Refining ${estimate.openAxes.join(", ") || "final checks"}. Confidence ${overall}% (${confidenceLabel(overall)}).`}
           </p>
-          <div className="question-stack">
-            {sectionQuestions.map((q) => {
-              const isContextual = pack.questions.some((pq) => pq.id === q.id);
-              return (
-                <fieldset key={q.id} className="question">
-                  <legend>
-                    {isContextual && (
-                      <span className="survey-section-label">
-                        Location / current affairs
-                      </span>
-                    )}
-                    <p>{q.text}</p>
-                  </legend>
-                  <div className="likert" role="radiogroup" aria-label={q.text}>
-                    {likertLabels.map((label, i) => {
-                      const value = i + 1;
-                      return (
-                        <label key={label}>
-                          <input
-                            type="radio"
-                            name={q.id}
-                            value={value}
-                            checked={answers[q.id] === value}
-                            onChange={() => setAnswer(q.id, value)}
-                          />
-                          {label}
-                        </label>
-                      );
-                    })}
-                  </div>
-                </fieldset>
-              );
-            })}
+
+          <div className="confidence-strip" aria-label="Axis confidence">
+            {AXIS_KEYS.map((axis) => (
+              <div key={axis} className="confidence-strip-item">
+                <span>{axis}</span>
+                <div className="confidence-bar">
+                  <i style={{ width: `${estimate.confidence[axis]}%` }} />
+                </div>
+                <em>{estimate.confidence[axis]}%</em>
+              </div>
+            ))}
           </div>
+
+          <fieldset className="question adaptive-question">
+            <legend>
+              <p>{currentQuestion.text}</p>
+            </legend>
+            <div
+              className="likert"
+              role="radiogroup"
+              aria-label={currentQuestion.text}
+            >
+              {likertLabels.map((label, i) => {
+                const value = i + 1;
+                return (
+                  <label key={label}>
+                    <input
+                      type="radio"
+                      name={currentQuestion.id}
+                      value={value}
+                      checked={answers[currentQuestion.id] === value}
+                      onChange={() => setAnswer(currentQuestion.id, value)}
+                    />
+                    {label}
+                  </label>
+                );
+              })}
+            </div>
+          </fieldset>
+        </>
+      )}
+
+      {isAdaptiveStep && !currentQuestion && (
+        <>
+          <h1>Map ready</h1>
+          <p className="blurb">
+            Adaptive path complete ({answeredCount} questions, {overall}%{" "}
+            confidence). Continue to the optional admiration step.
+          </p>
         </>
       )}
 
@@ -219,8 +309,7 @@ export default function SurveyPage() {
           <p className="survey-section-label">Final step · Ideal person</p>
           <h1>Who do you admire or feel aligned with?</h1>
           <p className="blurb">
-            Optional soft signal only — it nudges your position slightly toward
-            people you pick (capped at 12%). Your answers still dominate.
+            Soft signal only (≤12% blend). Your adaptive answers still dominate.
           </p>
           <div className="admire-grid">
             {admireOptions.map((opt) => (
@@ -248,8 +337,8 @@ export default function SurveyPage() {
           type="button"
           className="btn btn-ghost"
           onClick={back}
-          disabled={step === 0}
-          style={{ opacity: step === 0 ? 0.4 : 1 }}
+          disabled={isLocaleStep}
+          style={{ opacity: isLocaleStep ? 0.4 : 1 }}
         >
           Back
         </button>
