@@ -12,6 +12,7 @@ import { findDemoHandle } from "@/data/demo-handles";
 import { findFigureHandle } from "@/data/public-figures";
 import { scoreHandleActivities } from "@/lib/score";
 import type { HandleScoreResult } from "@/lib/types";
+import { stanceApiUrl } from "@/lib/site";
 
 function normalizeHandle(raw: string | null | undefined): string {
   if (!raw) return "";
@@ -28,13 +29,9 @@ function handleFromPath(pathname: string): string {
 }
 
 function apiAnalyzeUrl(handle: string, refresh = false): string {
-  const base =
-    typeof window !== "undefined" && window.location.pathname.startsWith("/stance")
-      ? "/stance"
-      : "";
   const q = new URLSearchParams({ handle });
   if (refresh) q.set("refresh", "1");
-  return `${base}/api/analyze?${q.toString()}`;
+  return stanceApiUrl(`/api/analyze?${q.toString()}`);
 }
 
 type AnalyzeResponse = {

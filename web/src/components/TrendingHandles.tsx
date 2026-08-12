@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { stanceApiUrl } from "@/lib/site";
 
 type TrendingItem = {
   handle: string;
@@ -15,11 +16,7 @@ type TrendingItem = {
 };
 
 function apiTrendingUrl(): string {
-  const base =
-    typeof window !== "undefined" && window.location.pathname.startsWith("/stance")
-      ? "/stance"
-      : "";
-  return `${base}/api/trending?limit=10`;
+  return stanceApiUrl("/api/trending?limit=10");
 }
 
 export function TrendingHandles() {

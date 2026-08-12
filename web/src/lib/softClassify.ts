@@ -101,6 +101,7 @@ const SOFT_CUES: SoftCue[] = [
   { pattern: "manifesto", topic: "party_tribal", leftRight: 0, tag: "soft_party" },
   { pattern: "cabinet", topic: "party_tribal", leftRight: 0.05, tag: "soft_gov" },
   { pattern: "prime minister", topic: "party_tribal", leftRight: 0.1, national: 0.15, tag: "soft_gov" },
+  { pattern: "india", topic: "borders_security", national: 0.2, tag: "soft_nat" },
   { pattern: "nation", topic: "borders_security", national: 0.2, tag: "soft_nat" },
   { pattern: "bharat", topic: "borders_security", national: 0.25, tag: "soft_nat" },
   { pattern: "motherland", topic: "borders_security", national: 0.4, tag: "soft_nat" },
@@ -138,6 +139,19 @@ function clamp(n: number, lo: number, hi: number): number {
   return Math.max(lo, Math.min(hi, n));
 }
 
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** Prefer word-boundary matches so "nation" ≠ "imagination". */
+function softMatch(norm: string, pattern: string): boolean {
+  const p = pattern.toLowerCase().trim();
+  if (!p) return false;
+  if (p.includes(" ")) return matchesPattern(norm, p);
+  const re = new RegExp(`(?:^|[^a-z0-9])${escapeRegExp(p)}(?:[^a-z0-9]|$)`, "i");
+  return re.test(norm);
+}
+
 export function softClassify(text: string): SoftHit | null {
   const norm = normalizeText(text);
   if (norm.length < 12) return null;
@@ -150,7 +164,7 @@ export function softClassify(text: string): SoftHit | null {
   let niN = 0;
 
   for (const cue of SOFT_CUES) {
-    if (!matchesPattern(norm, cue.pattern)) continue;
+    if (!softMatch(norm, cue.pattern)) continue;
     topics.add(cue.topic);
     if (cue.tag) tags.add(cue.tag);
     if (cue.leftRight != null && cue.leftRight !== 0) {
