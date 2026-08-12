@@ -128,8 +128,8 @@ async function fetchTweetPage(
     meta?: { next_token?: string; result_count?: number };
   }>(path, bearer);
 
-  // Some tiers reject exclude=retweets — retry bare
-  if (!res.ok) {
+  // Some tiers reject exclude=retweets — retry bare (same page; still one billable read set)
+  if (!res.ok && /exclude|parameter|invalid/i.test(res.detail || "")) {
     path =
       `/users/${userId}/tweets?max_results=${maxResults}` +
       `&tweet.fields=${tweetFields}`;

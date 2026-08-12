@@ -14,6 +14,10 @@ export interface Env {
   X_BEARER_TOKEN?: string;
   /** Hours before a cached score is considered stale for auto-refresh (default 168 = 7d) */
   STANCE_CACHE_TTL_HOURS?: string;
+  /** Max tweets per timeline page (default 50, max 100) — X bills per post read */
+  STANCE_TIMELINE_MAX?: string;
+  /** Timeline pages to fetch (default 1, max 2) */
+  STANCE_TIMELINE_PAGES?: string;
 }
 
 type CachedRow = {
@@ -175,9 +179,16 @@ async function scoreLive(
   if (!env.X_BEARER_TOKEN) {
     throw Object.assign(new Error("X_BEARER_TOKEN not configured"), { status: 503 });
   }
+  // Cost control: 1 page × 50 tweets ≈ far cheaper than 2×100 on pay-per-use X API.
+  // Override with STANCE_TIMELINE_MAX / STANCE_TIMELINE_PAGES if needed.
+  const maxResults = Math.min(
+    Math.max(Number(env.STANCE_TIMELINE_MAX ?? "50"), 10),
+    100,
+  );
+  const pages = Math.min(Math.max(Number(env.STANCE_TIMELINE_PAGES ?? "1"), 1), 2);
   const ingested = await ingestUserTimeline(handle, env.X_BEARER_TOKEN, {
-    maxResults: 100,
-    pages: 2,
+    maxResults,
+    pages,
   });
   if (!ingested.activities.length) {
     throw Object.assign(new Error("No public posts found in the recent window"), {
