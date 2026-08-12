@@ -1,0 +1,83 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Sora:wght@400;500;600&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg0: #081018;
+  --bg1: #0f1c28;
+  --ink: #e8eef4;
+  --muted: #8fa3b5;
+  --brass: #d2a85c;
+  --brass-dim: #9a7a3a;
+  --left: #5b9fd4;
+  --right: #e07a4d;
+  --national: #3dbf8f;
+  --antinational: #d45b6a;
+  --line: rgba(232, 238, 244, 0.12);
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  color: var(--ink);
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(210, 168, 92, 0.16), transparent 55%),
+    radial-gradient(900px 500px at 90% 0%, rgba(91, 159, 212, 0.12), transparent 50%),
+    radial-gradient(800px 500px at 50% 100%, rgba(61, 191, 143, 0.08), transparent 45%),
+    linear-gradient(165deg, var(--bg0), var(--bg1) 55%, #0a141c);
+  font-family: "Sora", system-ui, sans-serif;
+}
+
+.font-display {
+  font-family: "Fraunces", Georgia, serif;
+}
+
+.atmosphere-grid {
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at center, black 20%, transparent 75%);
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(210, 168, 92, 0.55);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(210, 168, 92, 0);
+  }
+}
+
+.animate-rise {
+  animation: rise-in 0.7s ease-out both;
+}
+
+.animate-rise-delay {
+  animation: rise-in 0.8s ease-out 0.12s both;
+}
+
+.animate-rise-delay-2 {
+  animation: rise-in 0.85s ease-out 0.22s both;
+}
+
+.plot-dot {
+  animation: pulse-dot 2.4s ease-out infinite;
+}
