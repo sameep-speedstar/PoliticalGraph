@@ -2,6 +2,8 @@
  * Fetch recent public posts for an X username via API v2.
  * Requires env.X_BEARER_TOKEN (App-only Bearer).
  * Only verified accounts are accepted (abuse control).
+ *
+ * Adaptive ingest: small batches + caller early-stop to cut pay-per-use cost.
  */
 import type { XActivity } from "../src/lib/types";
 
@@ -29,12 +31,26 @@ type XTweet = {
   referenced_tweets?: { type: string; id: string }[];
 };
 
+export type ResolvedUser = {
+  handle: string;
+  id: string;
+  displayName?: string;
+  verified: boolean;
+  verifiedType?: string | null;
+};
+
 export type IngestResult = {
   handle: string;
   displayName?: string;
   verified: boolean;
   verifiedType?: string | null;
   activities: XActivity[];
+  /** Adaptive fetch stats (for cost / debugging) */
+  ingestMeta?: {
+    batches: number;
+    batchSize: number;
+    stoppedReason: string;
+  };
 };
 
 function authHeaders(bearer: string): HeadersInit {
@@ -103,57 +119,10 @@ function tweetToActivity(t: XTweet, handle: string): XActivity {
   };
 }
 
-async function fetchTweetPage(
-  userId: string,
-  bearer: string,
-  maxResults: number,
-  paginationToken?: string,
-): Promise<{ tweets: XTweet[]; next?: string }> {
-  const tweetFields = [
-    "created_at",
-    "public_metrics",
-    "referenced_tweets",
-    "lang",
-  ].join(",");
-  // Include replies + quotes; still exclude pure retweets noise optionally via client filter
-  let path =
-    `/users/${userId}/tweets?max_results=${maxResults}` +
-    `&tweet.fields=${tweetFields}` +
-    `&exclude=retweets`;
-  if (paginationToken) {
-    path += `&pagination_token=${encodeURIComponent(paginationToken)}`;
-  }
-  let res = await xGet<{
-    data?: XTweet[];
-    meta?: { next_token?: string; result_count?: number };
-  }>(path, bearer);
-
-  // Some tiers reject exclude=retweets — retry bare (same page; still one billable read set)
-  if (!res.ok && /exclude|parameter|invalid/i.test(res.detail || "")) {
-    path =
-      `/users/${userId}/tweets?max_results=${maxResults}` +
-      `&tweet.fields=${tweetFields}`;
-    if (paginationToken) {
-      path += `&pagination_token=${encodeURIComponent(paginationToken)}`;
-    }
-    res = await xGet(path, bearer);
-  }
-  if (!res.ok) {
-    throw Object.assign(new Error(res.detail || "Timeline fetch failed"), {
-      status: res.status,
-    });
-  }
-  return {
-    tweets: res.data.data || [],
-    next: res.data.meta?.next_token,
-  };
-}
-
-export async function ingestUserTimeline(
+export async function resolveVerifiedUser(
   rawHandle: string,
   bearer: string,
-  opts?: { maxResults?: number; pages?: number },
-): Promise<IngestResult> {
+): Promise<ResolvedUser> {
   const handle = rawHandle.replace(/^@/, "").toLowerCase();
   if (!/^[a-z0-9_]{1,15}$/i.test(handle)) {
     throw Object.assign(new Error("Invalid X handle"), { status: 400 });
@@ -186,8 +155,133 @@ export async function ingestUserTimeline(
     );
   }
 
-  const perPage = Math.min(Math.max(opts?.maxResults ?? 100, 10), 100);
-  const pages = Math.min(Math.max(opts?.pages ?? 2, 1), 3);
+  return {
+    handle,
+    id: user.id,
+    displayName: user.name,
+    verified: true,
+    verifiedType: user.verified_type ?? (user.verified ? "legacy" : null),
+  };
+}
+
+export async function fetchTweetPage(
+  userId: string,
+  bearer: string,
+  maxResults: number,
+  paginationToken?: string,
+): Promise<{ tweets: XTweet[]; next?: string }> {
+  const tweetFields = [
+    "created_at",
+    "public_metrics",
+    "referenced_tweets",
+    "lang",
+  ].join(",");
+  const capped = Math.min(Math.max(maxResults, 5), 100);
+  let path =
+    `/users/${userId}/tweets?max_results=${capped}` +
+    `&tweet.fields=${tweetFields}` +
+    `&exclude=retweets`;
+  if (paginationToken) {
+    path += `&pagination_token=${encodeURIComponent(paginationToken)}`;
+  }
+  let res = await xGet<{
+    data?: XTweet[];
+    meta?: { next_token?: string; result_count?: number };
+  }>(path, bearer);
+
+  // Some tiers reject exclude=retweets — retry bare (same page)
+  if (!res.ok && /exclude|parameter|invalid/i.test(res.detail || "")) {
+    path =
+      `/users/${userId}/tweets?max_results=${capped}` +
+      `&tweet.fields=${tweetFields}`;
+    if (paginationToken) {
+      path += `&pagination_token=${encodeURIComponent(paginationToken)}`;
+    }
+    res = await xGet(path, bearer);
+  }
+  if (!res.ok) {
+    throw Object.assign(new Error(res.detail || "Timeline fetch failed"), {
+      status: res.status,
+    });
+  }
+  return {
+    tweets: res.data.data || [],
+    next: res.data.meta?.next_token,
+  };
+}
+
+/**
+ * Adaptive timeline ingest: fetch small batches; stop when `shouldStop` says
+ * the running score is good enough (saves X pay-per-use credits).
+ */
+export async function ingestUserTimelineAdaptive(
+  rawHandle: string,
+  bearer: string,
+  opts: {
+    batchSize?: number;
+    maxTweets?: number;
+    shouldStop: (activities: XActivity[], batchIndex: number) => boolean;
+  },
+): Promise<IngestResult> {
+  const user = await resolveVerifiedUser(rawHandle, bearer);
+  const batchSize = Math.min(Math.max(opts.batchSize ?? 20, 5), 100);
+  const maxTweets = Math.min(Math.max(opts.maxTweets ?? 60, batchSize), 200);
+
+  const activities: XActivity[] = [];
+  let token: string | undefined;
+  let batches = 0;
+  let stoppedReason = "max_tweets";
+
+  while (activities.length < maxTweets) {
+    const remaining = maxTweets - activities.length;
+    const pageSize = Math.min(batchSize, remaining);
+    // X requires max_results >= 5
+    if (pageSize < 5 && activities.length > 0) {
+      stoppedReason = "budget_remainder";
+      break;
+    }
+    const page = await fetchTweetPage(user.id, bearer, Math.max(pageSize, 5), token);
+    batches += 1;
+    if (!page.tweets.length) {
+      stoppedReason = "empty_page";
+      break;
+    }
+    activities.push(...page.tweets.map((t) => tweetToActivity(t, user.handle)));
+    token = page.next;
+
+    if (opts.shouldStop(activities, batches - 1)) {
+      stoppedReason = "sufficient_signal";
+      break;
+    }
+    if (!token) {
+      stoppedReason = "end_of_timeline";
+      break;
+    }
+  }
+
+  return {
+    handle: user.handle,
+    displayName: user.displayName,
+    verified: true,
+    verifiedType: user.verifiedType,
+    activities,
+    ingestMeta: {
+      batches,
+      batchSize,
+      stoppedReason,
+    },
+  };
+}
+
+/** Fixed-page ingest (legacy / overrides). */
+export async function ingestUserTimeline(
+  rawHandle: string,
+  bearer: string,
+  opts?: { maxResults?: number; pages?: number },
+): Promise<IngestResult> {
+  const user = await resolveVerifiedUser(rawHandle, bearer);
+  const perPage = Math.min(Math.max(opts?.maxResults ?? 50, 5), 100);
+  const pages = Math.min(Math.max(opts?.pages ?? 1, 1), 3);
   const tweets: XTweet[] = [];
   let token: string | undefined;
   for (let i = 0; i < pages; i++) {
@@ -197,12 +291,16 @@ export async function ingestUserTimeline(
     if (!token) break;
   }
 
-  const activities = tweets.map((t) => tweetToActivity(t, handle));
   return {
-    handle,
-    displayName: user.name,
+    handle: user.handle,
+    displayName: user.displayName,
     verified: true,
-    verifiedType: user.verified_type ?? (user.verified ? "legacy" : null),
-    activities,
+    verifiedType: user.verifiedType,
+    activities: tweets.map((t) => tweetToActivity(t, user.handle)),
+    ingestMeta: {
+      batches: Math.min(pages, Math.ceil(tweets.length / perPage) || 1),
+      batchSize: perPage,
+      stoppedReason: token ? "page_limit" : "end_of_timeline",
+    },
   };
 }

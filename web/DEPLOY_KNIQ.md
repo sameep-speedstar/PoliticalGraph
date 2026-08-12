@@ -15,12 +15,23 @@ The script mirrors live `kniq.ai` (including `/poligraph`), overlays **only** `/
 
 ## X API cost (important)
 
-X bills **pay-per-use** (~$0.005 per post read). Stance defaults to **1 page × 50 tweets** per fresh map (~$0.25 + user lookup). Cached maps cost **$0**.
+X bills **pay-per-use** (~$0.005 per post read). Stance uses **adaptive ingest**:
+
+1. Fetch **20** tweets
+2. Score immediately
+3. Stop early if enough signal (≥8 scored + medium confidence, or strong dual-axis signal)
+4. Otherwise fetch another batch up to **60** tweets max
+
+Typical political handles often stop at **20** posts (~$0.10). Thin timelines may use 40–60.
+
+Cached maps cost **$0**.
 
 Optional Worker vars:
 
-- `STANCE_TIMELINE_MAX` (default `50`, max `100`)
-- `STANCE_TIMELINE_PAGES` (default `1`, max `2`)
+- `STANCE_ADAPTIVE_BATCH` (default `20`)
+- `STANCE_ADAPTIVE_MAX` (default `60`)
+- `STANCE_MIN_SCORED` (default `8`)
+- `STANCE_MIN_CONFIDENCE` (default `40`)
 - `STANCE_CACHE_TTL_HOURS` (default `168`)
 
 Avoid `refresh=1` / Re-measure unless needed — each refresh re-bills.

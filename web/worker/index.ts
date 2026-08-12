@@ -4,9 +4,9 @@
 import { SCORE_ENGINE_VERSION } from "../src/data/definitions";
 import { findDemoHandle } from "../src/data/demo-handles";
 import { findFigureHandle } from "../src/data/public-figures";
-import { scoreHandleActivities } from "../src/lib/score";
+import { isScoreSufficient, scoreHandleActivities } from "../src/lib/score";
 import type { HandleScoreResult, XActivity } from "../src/lib/types";
-import { ingestUserTimeline } from "./ingest";
+import { ingestUserTimelineAdaptive } from "./ingest";
 
 export interface Env {
   ASSETS: Fetcher;
@@ -14,10 +14,14 @@ export interface Env {
   X_BEARER_TOKEN?: string;
   /** Hours before a cached score is considered stale for auto-refresh (default 168 = 7d) */
   STANCE_CACHE_TTL_HOURS?: string;
-  /** Max tweets per timeline page (default 50, max 100) — X bills per post read */
-  STANCE_TIMELINE_MAX?: string;
-  /** Timeline pages to fetch (default 1, max 2) */
-  STANCE_TIMELINE_PAGES?: string;
+  /** Adaptive batch size (default 20) — X bills per post read */
+  STANCE_ADAPTIVE_BATCH?: string;
+  /** Hard cap on tweets fetched adaptively (default 60) */
+  STANCE_ADAPTIVE_MAX?: string;
+  /** Min scored posts before early-stop (default 8) */
+  STANCE_MIN_SCORED?: string;
+  /** Min confidence 0–100 for early-stop (default 40) */
+  STANCE_MIN_CONFIDENCE?: string;
 }
 
 type CachedRow = {
@@ -179,28 +183,58 @@ async function scoreLive(
   if (!env.X_BEARER_TOKEN) {
     throw Object.assign(new Error("X_BEARER_TOKEN not configured"), { status: 503 });
   }
-  // Cost control: 1 page × 50 tweets ≈ far cheaper than 2×100 on pay-per-use X API.
-  // Override with STANCE_TIMELINE_MAX / STANCE_TIMELINE_PAGES if needed.
-  const maxResults = Math.min(
-    Math.max(Number(env.STANCE_TIMELINE_MAX ?? "50"), 10),
+
+  const batchSize = Math.min(
+    Math.max(Number(env.STANCE_ADAPTIVE_BATCH ?? "20"), 5),
+    50,
+  );
+  const maxTweets = Math.min(
+    Math.max(Number(env.STANCE_ADAPTIVE_MAX ?? "60"), batchSize),
     100,
   );
-  const pages = Math.min(Math.max(Number(env.STANCE_TIMELINE_PAGES ?? "1"), 1), 2);
-  const ingested = await ingestUserTimeline(handle, env.X_BEARER_TOKEN, {
-    maxResults,
-    pages,
+  const minScored = Math.min(
+    Math.max(Number(env.STANCE_MIN_SCORED ?? "8"), 3),
+    30,
+  );
+  const minConfidence = Math.min(
+    Math.max(Number(env.STANCE_MIN_CONFIDENCE ?? "40"), 20),
+    90,
+  );
+
+  const ingested = await ingestUserTimelineAdaptive(handle, env.X_BEARER_TOKEN, {
+    batchSize,
+    maxTweets,
+    shouldStop: (activities) => {
+      const partial = scoreHandleActivities({
+        handle,
+        activities,
+        source: "live",
+      });
+      return isScoreSufficient(partial, { minScored, minConfidence });
+    },
   });
+
   if (!ingested.activities.length) {
     throw Object.assign(new Error("No public posts found in the recent window"), {
       status: 422,
     });
   }
+
   const result = scoreHandleActivities({
     handle: ingested.handle,
     displayName: ingested.displayName,
     activities: ingested.activities,
     source: "live",
   });
+
+  const meta = ingested.ingestMeta;
+  if (meta?.stoppedReason === "sufficient_signal") {
+    result.confidence.notes = [
+      `Adaptive ingest stopped early (${ingested.activities.length} posts / ${meta.batches} batch${meta.batches === 1 ? "" : "es"}) — enough signal.`,
+      ...result.confidence.notes.filter((n) => !n.startsWith("Adaptive ingest")),
+    ];
+  }
+
   return { result, activities: ingested.activities };
 }
 
@@ -219,7 +253,7 @@ function scoreDemo(
 }
 
 function thinEvidenceWarning(result: HandleScoreResult): string | undefined {
-  if (result.activityCount >= 20 && result.scoredCount <= 2) {
+  if (result.activityCount >= 15 && result.scoredCount <= 2) {
     return `Only ${result.scoredCount} of ${result.activityCount} posts matched the stance lexicon — point is provisional. Re-measure after lexicon upgrades.`;
   }
   return undefined;

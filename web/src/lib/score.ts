@@ -221,3 +221,38 @@ export function scoreHandleActivities(opts: {
     scoredCount: scored.length,
   };
 }
+
+/**
+ * Early-stop heuristic for adaptive ingest — enough signal to avoid more X reads.
+ * Deliberately does NOT require high volume-based confidence (that needs ~40 scored
+ * posts); uses scored count, hit-rate, and topic coverage instead.
+ */
+export function isScoreSufficient(
+  result: HandleScoreResult,
+  opts?: { minScored?: number; minConfidence?: number },
+): boolean {
+  const minScored = opts?.minScored ?? 8;
+  const scored = result.scoredCount;
+  const n = result.activityCount;
+  const hitRate = n > 0 ? scored / n : 0;
+  const topics = result.confidence.topicCoverage;
+  const { axes } = result;
+
+  if (scored >= 12) return true;
+  if (scored >= minScored && topics >= 0.34) return true;
+  // Dense political timeline after a small batch
+  if (scored >= 4 && hitRate >= 0.5 && n >= 5 && topics >= 0.34) return true;
+  if (scored >= 5 && hitRate >= 0.45 && topics >= 0.34) return true;
+  if (scored >= 6 && hitRate >= 0.35) return true;
+  // Both axes already moving with decent sample
+  if (
+    scored >= 6 &&
+    axes.leftRight.nItems >= 3 &&
+    axes.nationalInterest.nItems >= 2 &&
+    topics >= 0.34
+  ) {
+    return true;
+  }
+  void opts?.minConfidence;
+  return false;
+}

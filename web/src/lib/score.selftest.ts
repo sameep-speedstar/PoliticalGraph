@@ -4,7 +4,7 @@
  */
 import { findDemoHandle } from "@/data/demo-handles";
 import { FIGURE_HANDLES } from "@/data/public-figures";
-import { scoreHandleActivities } from "@/lib/score";
+import { isScoreSufficient, scoreHandleActivities } from "@/lib/score";
 
 function assert(cond: boolean, msg: string) {
   if (!cond) throw new Error(msg);
@@ -135,6 +135,20 @@ function run() {
   assert(
     journalist.coords.leftRight < -10,
     `journalist sample should lean Left, got ${journalist.coords.leftRight}`,
+  );
+
+  assert(isScoreSufficient(journalist), "journalist sample should be sufficient for early-stop");
+  assert(
+    !isScoreSufficient({
+      ...journalist,
+      scoredCount: 2,
+      confidence: { ...journalist.confidence, overall: 20 },
+      axes: {
+        leftRight: { ...journalist.axes.leftRight, nItems: 1 },
+        nationalInterest: { ...journalist.axes.nationalInterest, nItems: 0 },
+      },
+    }),
+    "thin score must not be sufficient",
   );
 
   console.log(
