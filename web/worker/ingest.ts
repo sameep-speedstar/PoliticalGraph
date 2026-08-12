@@ -224,8 +224,8 @@ export async function ingestUserTimelineAdaptive(
   },
 ): Promise<IngestResult> {
   const user = await resolveVerifiedUser(rawHandle, bearer);
-  const batchSize = Math.min(Math.max(opts.batchSize ?? 20, 5), 100);
-  const maxTweets = Math.min(Math.max(opts.maxTweets ?? 60, batchSize), 200);
+  const batchSize = Math.min(Math.max(opts.batchSize ?? 10, 5), 100);
+  const maxTweets = Math.min(Math.max(opts.maxTweets ?? 30, batchSize), 100);
 
   const activities: XActivity[] = [];
   let token: string | undefined;

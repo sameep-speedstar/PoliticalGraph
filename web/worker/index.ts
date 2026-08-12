@@ -14,11 +14,11 @@ export interface Env {
   X_BEARER_TOKEN?: string;
   /** Hours before a cached score is considered stale for auto-refresh (default 168 = 7d) */
   STANCE_CACHE_TTL_HOURS?: string;
-  /** Adaptive batch size (default 20) — X bills per post read */
+  /** Adaptive batch size (default 10) — X bills per post read */
   STANCE_ADAPTIVE_BATCH?: string;
-  /** Hard cap on tweets fetched adaptively (default 60) */
+  /** Hard cap on tweets fetched adaptively (default 30) */
   STANCE_ADAPTIVE_MAX?: string;
-  /** Min scored posts before early-stop (default 8) */
+  /** Min scored posts before early-stop (default 6) */
   STANCE_MIN_SCORED?: string;
   /** Min confidence 0–100 for early-stop (default 40) */
   STANCE_MIN_CONFIDENCE?: string;
@@ -185,15 +185,15 @@ async function scoreLive(
   }
 
   const batchSize = Math.min(
-    Math.max(Number(env.STANCE_ADAPTIVE_BATCH ?? "20"), 5),
+    Math.max(Number(env.STANCE_ADAPTIVE_BATCH ?? "10"), 5),
     50,
   );
   const maxTweets = Math.min(
-    Math.max(Number(env.STANCE_ADAPTIVE_MAX ?? "60"), batchSize),
+    Math.max(Number(env.STANCE_ADAPTIVE_MAX ?? "30"), batchSize),
     100,
   );
   const minScored = Math.min(
-    Math.max(Number(env.STANCE_MIN_SCORED ?? "8"), 3),
+    Math.max(Number(env.STANCE_MIN_SCORED ?? "6"), 3),
     30,
   );
   const minConfidence = Math.min(

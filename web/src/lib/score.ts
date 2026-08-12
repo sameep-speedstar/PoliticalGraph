@@ -231,22 +231,22 @@ export function isScoreSufficient(
   result: HandleScoreResult,
   opts?: { minScored?: number; minConfidence?: number },
 ): boolean {
-  const minScored = opts?.minScored ?? 8;
+  const minScored = opts?.minScored ?? 6;
   const scored = result.scoredCount;
   const n = result.activityCount;
   const hitRate = n > 0 ? scored / n : 0;
   const topics = result.confidence.topicCoverage;
   const { axes } = result;
 
-  if (scored >= 12) return true;
+  if (scored >= 10) return true;
   if (scored >= minScored && topics >= 0.34) return true;
   // Dense political timeline after a small batch
   if (scored >= 4 && hitRate >= 0.5 && n >= 5 && topics >= 0.34) return true;
-  if (scored >= 5 && hitRate >= 0.45 && topics >= 0.34) return true;
-  if (scored >= 6 && hitRate >= 0.35) return true;
+  if (scored >= 5 && hitRate >= 0.4 && topics >= 0.34) return true;
+  if (scored >= 5 && hitRate >= 0.35) return true;
   // Both axes already moving with decent sample
   if (
-    scored >= 6 &&
+    scored >= 5 &&
     axes.leftRight.nItems >= 3 &&
     axes.nationalInterest.nItems >= 2 &&
     topics >= 0.34

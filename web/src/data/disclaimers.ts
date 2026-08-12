@@ -28,7 +28,7 @@ export const DISCLAIMERS: { id: string; title: string; body: string }[] = [
   {
     id: "public_data",
     title: "Public data only",
-    body: "Scoring uses publicly visible X activity (tweets, quote-tweets, replies, retweets, likes in the analysis window). Private, deleted, or protected content is out of scope.",
+    body: "Scoring uses publicly visible X posts from the handle (tweets, quote-tweets, replies in the analysis window). Engagement received (likes/reposts on those posts) scales weight. Posts the account liked, and pure retweets, are not ingested in the live path. Private, deleted, or protected content is out of scope.",
   },
   {
     id: "evidence",
