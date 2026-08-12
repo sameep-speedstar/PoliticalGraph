@@ -127,6 +127,31 @@ export function classifyActivity(activity: XActivity): ScoredActivity | null {
     return null;
   }
 
+  // Infer topic from hard/soft tags when stance matched without topic detectors
+  if (!topics.length) {
+    if (
+      [...tags].some((t) =>
+        ["civil_liberties", "soft_liberty", "identity_equity", "order"].includes(t),
+      )
+    ) {
+      topics.push("constitutional_order");
+    } else if (
+      [...tags].some((t) =>
+        ["soft_econ", "redistribution", "markets"].includes(t),
+      )
+    ) {
+      topics.push("economy");
+    } else if (
+      [...tags].some((t) =>
+        ["sovereignty", "defense", "soft_nat", "adversary_echo"].includes(t),
+      )
+    ) {
+      topics.push("borders_security");
+    } else if ([...tags].some((t) => t.startsWith("soft_party") || t === "soft_party")) {
+      topics.push("party_tribal");
+    }
+  }
+
   // Party tribal alone with no stance → skip (noise)
   if (
     topics.length === 1 &&

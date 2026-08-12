@@ -364,6 +364,84 @@ export const STANCE_CUES: StanceCue[] = [
     stance: -0.45,
     tags: ["civil_liberties"],
   },
+  {
+    pattern: "police crackdown",
+    axis: "leftRight",
+    stance: -0.5,
+    tags: ["civil_liberties"],
+  },
+  {
+    pattern: "crackdown on",
+    axis: "leftRight",
+    stance: -0.4,
+    tags: ["civil_liberties"],
+  },
+  {
+    pattern: "press freedom",
+    axis: "leftRight",
+    stance: -0.45,
+    tags: ["civil_liberties"],
+  },
+  {
+    pattern: "freedom of press",
+    axis: "leftRight",
+    stance: -0.45,
+    tags: ["civil_liberties"],
+  },
+  {
+    pattern: "student protest",
+    axis: "leftRight",
+    stance: -0.35,
+    tags: ["civil_liberties"],
+  },
+  {
+    pattern: "gen z protest",
+    axis: "leftRight",
+    stance: -0.35,
+    tags: ["civil_liberties"],
+  },
+  {
+    pattern: "lathi charge",
+    axis: "leftRight",
+    stance: -0.5,
+    tags: ["civil_liberties"],
+  },
+  {
+    pattern: "water cannon",
+    axis: "leftRight",
+    stance: -0.4,
+    tags: ["civil_liberties"],
+  },
+  {
+    pattern: "tear gas",
+    axis: "leftRight",
+    stance: -0.35,
+    tags: ["civil_liberties"],
+  },
+  {
+    pattern: "hate crime",
+    axis: "leftRight",
+    stance: -0.45,
+    tags: ["identity_equity"],
+  },
+  {
+    pattern: "islamophobia",
+    axis: "leftRight",
+    stance: -0.5,
+    tags: ["identity_equity"],
+  },
+  {
+    pattern: "mob lynching",
+    axis: "leftRight",
+    stance: -0.55,
+    tags: ["identity_equity"],
+  },
+  {
+    pattern: "bulldozer justice",
+    axis: "leftRight",
+    stance: -0.45,
+    tags: ["civil_liberties"],
+  },
 
   // National (+)
   {

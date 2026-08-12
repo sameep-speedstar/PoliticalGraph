@@ -77,6 +77,66 @@ function run() {
   assert(figureCoords.narendramodi.leftRight > 15, "modi should lean Right");
   assert(figureCoords.rahulgandhi.leftRight < -15, "rahul should lean Left");
 
+  // Journalist / protest discourse should yield multiple scored evidence items
+  const journalist = scoreHandleActivities({
+    handle: "sample_journalist",
+    activities: [
+      {
+        id: "1",
+        kind: "tweet",
+        text: "Police brutality at the Gen Z student protest — tear gas and lathi charge on dissent.",
+        createdAt: "2026-07-20T10:00:00Z",
+        likes: 1200,
+        retweets: 400,
+      },
+      {
+        id: "2",
+        kind: "tweet",
+        text: "Instagram accounts of influencers who posted reels from the protest exposing police crackdown are gone.",
+        createdAt: "2026-07-21T10:00:00Z",
+        likes: 800,
+        retweets: 200,
+      },
+      {
+        id: "3",
+        kind: "tweet",
+        text: "Modi government must be held accountable for the university crackdown and arrests of students.",
+        createdAt: "2026-07-22T10:00:00Z",
+        likes: 900,
+        retweets: 300,
+      },
+      {
+        id: "4",
+        kind: "tweet",
+        text: "Press freedom is shrinking — journalists covering the NEET paper leak protests face intimidation.",
+        createdAt: "2026-07-23T10:00:00Z",
+        likes: 500,
+        retweets: 150,
+      },
+      {
+        id: "5",
+        kind: "tweet",
+        text: "Good morning from Mumbai. Coffee and deadlines.",
+        createdAt: "2026-07-24T10:00:00Z",
+        likes: 20,
+        retweets: 0,
+      },
+    ],
+    source: "demo",
+  });
+  assert(
+    journalist.scoredCount >= 4,
+    `journalist sample should score ≥4 posts, got ${journalist.scoredCount}`,
+  );
+  assert(
+    journalist.evidence.length >= 4,
+    `journalist sample should list ≥4 evidence, got ${journalist.evidence.length}`,
+  );
+  assert(
+    journalist.coords.leftRight < -10,
+    `journalist sample should lean Left, got ${journalist.coords.leftRight}`,
+  );
+
   console.log(
     JSON.stringify(
       {
@@ -85,6 +145,11 @@ function run() {
         kabir: k.coords,
         priya: p.coords,
         figures: figureCoords,
+        journalist: {
+          coords: journalist.coords,
+          scored: journalist.scoredCount,
+          evidence: journalist.evidence.length,
+        },
       },
       null,
       2,

@@ -5,7 +5,9 @@
 
 export const PRODUCT_NAME = "Stance";
 export const PRODUCT_PATH = "/stance";
-export const METHODOLOGY_VERSION = "2026-08-12";
+export const METHODOLOGY_VERSION = "2026-08-12.2";
+/** Bumped when classifier/lexicon changes — Worker re-scores cached activities. */
+export const SCORE_ENGINE_VERSION = "2026-08-12.2";
 export const LEXICON_PACK = "india-v1";
 export const REFERENCE_NATION = "India";
 

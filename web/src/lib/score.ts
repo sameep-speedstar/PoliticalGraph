@@ -2,6 +2,7 @@ import {
   LEXICON_PACK,
   METHODOLOGY_VERSION,
   REFERENCE_NATION,
+  SCORE_ENGINE_VERSION,
 } from "@/data/definitions";
 import { classifyActivity } from "@/lib/classify";
 import type {
@@ -204,6 +205,7 @@ export function scoreHandleActivities(opts: {
     asOf: new Date().toISOString().slice(0, 10),
     methodologyVersion: METHODOLOGY_VERSION,
     lexiconPack: LEXICON_PACK,
+    scoreEngineVersion: SCORE_ENGINE_VERSION,
     referenceNation: REFERENCE_NATION,
     coords: {
       leftRight: leftRight.score,

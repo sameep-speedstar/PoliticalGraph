@@ -64,6 +64,8 @@ export type HandleScoreResult = {
   asOf: string;
   methodologyVersion: string;
   lexiconPack: string;
+  /** Classifier/lexicon engine id — cache re-scores when this changes */
+  scoreEngineVersion?: string;
   referenceNation: string;
   coords: {
     leftRight: number;
