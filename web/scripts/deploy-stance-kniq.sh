@@ -165,24 +165,29 @@ print("assembled OK")
 PY
 
 mkdir -p "$CFG"
+cp "$ROOT/scripts/kniq-worker.js" "$CFG/worker.js"
 cat > "$CFG/wrangler.toml" <<EOF
 name = "kniqnew"
+main = "worker.js"
 compatibility_date = "2026-07-17"
 account_id = "$ACCOUNT_ID"
 
 [assets]
 directory = "$SITE"
+binding = "ASSETS"
 html_handling = "auto-trailing-slash"
 not_found_handling = "none"
+run_worker_first = ["/stance/map/*"]
 EOF
 
-echo "==> Preflight: poligraph + stance present"
-ls -la "$SITE/poligraph/index.html" "$SITE/stance/index.html"
+echo "==> Preflight: poligraph + stance + map shell present"
+ls -la "$SITE/poligraph/index.html" "$SITE/stance/index.html" "$SITE/stance/map/index.html"
 
-echo "==> Deploying Worker assets kniqnew…"
+echo "==> Deploying Worker + assets kniqnew…"
 cd "$CFG"
 npx --yes wrangler deploy
 
 echo ""
 echo "Live Stance:    https://www.kniq.ai/stance/"
+echo "Unknown handle: https://www.kniq.ai/stance/map/ranaayyub/  (should be Stance UI, not browser 404)"
 echo "Check Poligraph https://www.kniq.ai/poligraph/  (must still 200)"
