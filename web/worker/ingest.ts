@@ -53,10 +53,20 @@ async function xGet<T>(
   }
   if (!res.ok) {
     const detail =
-      (json as { detail?: string; title?: string })?.detail ||
+      (json as { detail?: string; title?: string; reason?: string })?.detail ||
       (json as { title?: string })?.title ||
+      (json as { reason?: string })?.reason ||
       text.slice(0, 240) ||
       res.statusText;
+    // Normalize common X billing errors
+    if (res.status === 402 || /credit|payment|billing|UsageCapExceeded/i.test(detail)) {
+      return {
+        ok: false,
+        status: 402,
+        detail:
+          "X API credits depleted or plan cap reached — add credits / upgrade at developer.x.com",
+      };
+    }
     return { ok: false, status: res.status, detail };
   }
   return { ok: true, data: json as T };
