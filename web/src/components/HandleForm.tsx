@@ -6,8 +6,8 @@ import { FormEvent, useState, useTransition } from "react";
 const DEMOS = [
   { handle: "arjun_bharat", label: "Right · National" },
   { handle: "neha_republic", label: "Left · National" },
-  { handle: "kabir_frontier", label: "Left · Anti-National" },
-  { handle: "priya_audit", label: "Critic ≠ Anti-National" },
+  { handle: "kabir_frontier", label: "Left · Adversary-Aligned" },
+  { handle: "priya_audit", label: "Critic ≠ Adversary-Aligned" },
 ];
 
 export function HandleForm({ initial }: { initial?: string }) {
@@ -65,7 +65,7 @@ export function HandleForm({ initial }: { initial?: string }) {
         </button>
       </form>
       {error ? (
-        <p className="mt-3 text-sm text-[var(--antinational)]">{error}</p>
+        <p className="mt-3 text-sm text-[var(--adversary)]">{error}</p>
       ) : null}
       <div className="mt-5 flex flex-wrap gap-2">
         <span className="mr-1 self-center text-xs uppercase tracking-wider text-[var(--muted)]">

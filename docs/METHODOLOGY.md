@@ -1,12 +1,22 @@
-# XAxis — Methodology
+# Stance — Methodology
 
-**Product:** X Handle Political Mapping  
+**Product:** Stance (X handle alignment map)  
+**Site:** https://www.kniq.ai/stance  
 **Reference nation (v1):** India  
 **Input:** Public X activity only (no survey)
 
 ## Promise
 
 Drop any public X handle. We place that account on two continuous axes from past tweets, quote-tweets, replies, retweets, and likes — with confidence and evidence, not moral ranking.
+
+## Disclaimers (always apply)
+
+- **Experimental only** — provisional research estimates, not official findings.
+- **Not a personal attack** — do not use outputs to harass or defame anyone.
+- **Not a loyalty or legal verdict** — “National” / “Adversary-Aligned” are operational pattern labels.
+- **Public data only** — visible X activity in the analysis window.
+- **Evidence-backed** — contributions are listed on the result page.
+- **Methodology published** on this site (this document + in-app Methodology page).
 
 ## Axes
 
@@ -21,20 +31,20 @@ Political economy and social order.
 | **Left** | −100 | Redistribution, state-led economy, identity equity, civil liberties over order, secular-progressive culture |
 | **Right** | +100 | Markets/merit, law-and-order, cultural traditionalism, skepticism of expansive welfare/quotas |
 
-Left/Right is **independent** of National/Anti-National. Left-nationalist and right-cosmopolitan placements are valid.
+Left/Right is **independent** of National / Adversary-Aligned. Left-nationalist and right-cosmopolitan placements are valid.
 
-### Axis 2 — National ↔ Anti-National
+### Axis 2 — National ↔ Adversary-Aligned
 
 National-interest first (India v1). Internal codes: `national_interest` ↔ `adversary_aligned`.
 
 | Pole | Score | Meaning |
 |------|-------|---------|
 | **National** | +100 | Treats India’s security, sovereignty, territorial integrity, constitutional continuity, and strategic advantage as primary |
-| **Anti-National** | −100 | Systematically (a) amplifies adversary-state narratives against India, (b) denies/relativizes territorial integrity or constitutional order in ways that weaken the Union’s claim, or (c) treats India’s strategic interests as illegitimate while treating rival interests as legitimate |
+| **Adversary-Aligned** | −100 | Systematically (a) amplifies adversary-state narratives against India, (b) denies/relativizes territorial integrity or constitutional order in ways that weaken the Union’s claim, or (c) treats India’s strategic interests as illegitimate while treating rival interests as legitimate |
 
-### Explicit exclusions (dissent ≠ Anti-National)
+### Explicit exclusions (dissent ≠ Adversary-Aligned)
 
-**Not Anti-National by itself:**
+**Not Adversary-Aligned by itself:**
 
 - Criticism of a party, PM, ministry, or coalition
 - Critique of policy failure, corruption, or procurement waste
@@ -42,7 +52,7 @@ National-interest first (India v1). Internal codes: `national_interest` ↔ `adv
 - Human-rights or civil-liberties advocacy **unless** paired with adversary narrative, secession, or sovereignty-denial codes
 - “Nationalization of industry” (that is Left/Right economic, not National axis)
 
-A post contributes to Anti-National **only** when it hits adversary-alignment / sovereignty-weakening codes.
+A post contributes to Adversary-Aligned **only** when it hits adversary-alignment / sovereignty-weakening codes.
 
 ## Signal weights
 

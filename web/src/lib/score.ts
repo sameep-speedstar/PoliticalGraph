@@ -122,8 +122,12 @@ export function computeConfidence(
 function quadrantLabel(lr: number, ni: number): string {
   const h = lr < -15 ? "Left" : lr > 15 ? "Right" : "Center";
   const v =
-    ni > 15 ? "National" : ni < -15 ? "Anti-National" : "Mixed-National";
-  if (h === "Center" && v === "Mixed-National") return "Centrist / Mixed";
+    ni > 15
+      ? "National"
+      : ni < -15
+        ? "Adversary-Aligned"
+        : "Mixed national-interest";
+  if (h === "Center" && v === "Mixed national-interest") return "Centrist / Mixed";
   return `${h} · ${v}`;
 }
 
@@ -144,11 +148,11 @@ function summaryText(lr: number, ni: number, conf: ConfidenceBreakdown): string 
       : ni >= 15
         ? "National-leaning"
         : ni <= -40
-          ? "strongly adversary-aligned on national-interest codes"
+          ? "strongly Adversary-Aligned on national-interest codes"
           : ni <= -15
-            ? "Anti-National-leaning by national-interest codes"
+            ? "Adversary-Aligned-leaning by national-interest codes"
             : "mixed on national interest";
-  return `Public X activity reads as ${lrWord} and ${niWord} (confidence ${conf.label}). Party criticism alone does not define the National axis.`;
+  return `Public X activity reads as ${lrWord} and ${niWord} (confidence ${conf.label}). Experimental estimate — not a personal attack. Party criticism alone does not define the National axis.`;
 }
 
 function buildEvidence(scored: ScoredActivity[], limit = 12): EvidenceItem[] {

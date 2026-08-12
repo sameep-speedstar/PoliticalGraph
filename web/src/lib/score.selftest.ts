@@ -51,13 +51,13 @@ function run() {
   assert(k.coords.leftRight < -10, `kabir should be Left, got ${k.coords.leftRight}`);
   assert(
     k.coords.nationalInterest < -40,
-    `kabir should be Anti-National, got ${k.coords.nationalInterest}`,
+    `kabir should be Adversary-Aligned, got ${k.coords.nationalInterest}`,
   );
 
-  // Critic: Left-leaning ok; must NOT be strongly Anti-National
+  // Critic: Left-leaning ok; must NOT be strongly Adversary-Aligned
   assert(
     p.coords.nationalInterest > -10,
-    `priya critic must not score Anti-National, got ${p.coords.nationalInterest}`,
+    `priya critic must not score Adversary-Aligned, got ${p.coords.nationalInterest}`,
   );
 
   console.log(

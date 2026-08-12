@@ -196,7 +196,7 @@ const nehaLeftNational: DemoHandle = {
     act({
       id: "n10",
       kind: "tweet",
-      text: "Modi must resign over inflation — that is accountability, not Anti-National.",
+      text: "Modi must resign over inflation — that is accountability, not adversary alignment.",
       createdAt: daysAgo(50),
       likes: 220,
       retweets: 80,
@@ -204,7 +204,7 @@ const nehaLeftNational: DemoHandle = {
   ],
 };
 
-/** Left · Anti-National (adversary-aligned codes) */
+/** Left · Adversary-Aligned codes */
 const kabirAdversaryLeft: DemoHandle = {
   handle: "kabir_frontier",
   displayName: "Kabir Ansari",
@@ -293,7 +293,7 @@ const kabirAdversaryLeft: DemoHandle = {
   ],
 };
 
-/** Critic who is NOT anti-national (false-friend stress test) */
+/** Critic who is NOT adversary-aligned (false-friend stress test) */
 const criticOnly: DemoHandle = {
   handle: "priya_audit",
   displayName: "Priya Desai",

@@ -1,14 +1,22 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { AxisPlot } from "@/components/AxisPlot";
 import { EvidenceList } from "@/components/EvidenceList";
 import { HandleForm } from "@/components/HandleForm";
-import { findDemoHandle } from "@/data/demo-handles";
+import { ShareCard } from "@/components/ShareCard";
+import { DEMO_HANDLES, findDemoHandle } from "@/data/demo-handles";
+import { SHORT_DISCLAIMER } from "@/data/disclaimers";
 import { scoreHandleActivities } from "@/lib/score";
 
 type Props = {
   params: Promise<{ handle: string }>;
 };
+
+export function generateStaticParams() {
+  return DEMO_HANDLES.map((d) => ({ handle: d.handle }));
+}
+
+/** Only prebuilt demo handles in static export; others show fallback via client nav rare. */
+export const dynamicParams = false;
 
 export default async function MapPage({ params }: Props) {
   const { handle: raw } = await params;
@@ -23,12 +31,17 @@ export default async function MapPage({ params }: Props) {
           Live X ingest is not configured in this build. Use a demo handle, or
           add an ingest adapter later.
         </p>
+        <p className="mt-3 text-sm text-[var(--muted)]">{SHORT_DISCLAIMER}</p>
         <div className="mt-8">
           <HandleForm initial={handle} />
         </div>
         <p className="mt-6 text-sm">
           <Link href="/methodology" className="text-[var(--brass)] hover:underline">
             Read methodology
+          </Link>
+          {" · "}
+          <Link href="/disclaimers" className="text-[var(--brass)] hover:underline">
+            Disclaimers
           </Link>
         </p>
       </div>
@@ -41,8 +54,6 @@ export default async function MapPage({ params }: Props) {
     activities: demo.activities,
     source: "demo",
   });
-
-  if (!result) notFound();
 
   return (
     <div className="mx-auto w-full max-w-6xl px-5 pb-16 pt-4 sm:px-8">
@@ -67,6 +78,16 @@ export default async function MapPage({ params }: Props) {
 
       <p className="mt-6 max-w-2xl text-[var(--ink)]">{result.summary}</p>
       <p className="mt-2 text-sm text-[var(--brass)]">{result.quadrant}</p>
+      <p className="mt-3 max-w-2xl text-xs text-[var(--muted)]">
+        {SHORT_DISCLAIMER}{" "}
+        <Link href="/methodology" className="text-[var(--brass)] hover:underline">
+          Methodology
+        </Link>
+        {" · "}
+        <Link href="/disclaimers" className="text-[var(--brass)] hover:underline">
+          Disclaimers
+        </Link>
+      </p>
 
       <div className="mt-10 grid gap-10 lg:grid-cols-2">
         <div>
@@ -86,7 +107,7 @@ export default async function MapPage({ params }: Props) {
             </div>
             <div>
               <p className="text-xs uppercase tracking-wider text-[var(--muted)]">
-                National ↔ Anti-National
+                National ↔ Adversary-Aligned
               </p>
               <p className="font-display text-3xl font-bold">
                 {result.coords.nationalInterest > 0 ? "+" : ""}
@@ -103,13 +124,25 @@ export default async function MapPage({ params }: Props) {
           <h2 className="font-display text-2xl font-semibold">Evidence</h2>
           <p className="mt-1 text-sm text-[var(--muted)]">
             Top weighted contributions from {result.scoredCount} of{" "}
-            {result.activityCount} activities ({result.source}).
+            {result.activityCount} activities ({result.source}). Calculations are
+            evidence-backed — inspect items below.
           </p>
           <div className="mt-6">
             <EvidenceList items={result.evidence} />
           </div>
         </div>
       </div>
+
+      <section className="mt-12 border-t border-[var(--line)] pt-8">
+        <h2 className="font-display text-2xl font-semibold">Share on X</h2>
+        <p className="mt-2 max-w-xl text-sm text-[var(--muted)]">
+          Download a screenshot card, then share on X with the evidence link.
+          Sharing is optional; do not use results as a personal attack.
+        </p>
+        <div className="mt-6 max-w-md">
+          <ShareCard result={result} />
+        </div>
+      </section>
 
       <div className="mt-12 border-t border-[var(--line)] pt-8">
         <h3 className="text-sm font-medium text-[var(--ink)]">Confidence notes</h3>

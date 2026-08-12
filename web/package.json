@@ -5,11 +5,15 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:kniq": "STANCE_BASE_PATH=/stance next build",
+    "build:kniq:static": "STANCE_EXPORT=1 STANCE_BASE_PATH=/stance next build",
     "start": "next start",
+    "start:kniq": "STANCE_BASE_PATH=/stance next start",
     "lint": "tsc --noEmit",
     "selftest": "npx tsx src/lib/score.selftest.ts"
   },
   "dependencies": {
+    "html-to-image": "^1.11.13",
     "next": "^16.3.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

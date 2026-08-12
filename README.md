@@ -1,12 +1,17 @@
-# XAxis — X Handle Political Mapping
+# Stance
 
-Drop an X handle. Map **Left ↔ Right** and **National ↔ Anti-National** from public tweets, quote-tweets, replies, retweets, and likes — **no survey**.
+**Drop a handle. See the stance.**
 
-Standalone product (not Poligraph). Reference nation v1: **India**.
+Map **Left ↔ Right** and **National ↔ Adversary-Aligned** from public X activity — no survey. Ships at **[www.kniq.ai/stance](https://www.kniq.ai/stance)** (KNIQ · Speedstar AI Labs).
+
+Experimental · public data · evidence-backed · not a personal attack or loyalty verdict. Methodology and full disclaimers are on the site.
 
 ## Docs
 
-- [`docs/METHODOLOGY.md`](./docs/METHODOLOGY.md) — frozen pole definitions, exclusions, weights, composite formula
+| Doc | Purpose |
+|-----|---------|
+| [`docs/METHODOLOGY.md`](./docs/METHODOLOGY.md) | Pole definitions, weights, composite formula |
+| [`web/DEPLOY_KNIQ.md`](./web/DEPLOY_KNIQ.md) | Deploy under `/stance` on kniq.ai |
 
 ## Quick start
 
@@ -16,35 +21,28 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+### Demo handles
 
-### Demo handles (no X API key)
-
-| Handle | Expected quadrant |
-|--------|-------------------|
+| Handle | Expected |
+|--------|----------|
 | `@arjun_bharat` | Right · National |
 | `@neha_republic` | Left · National |
-| `@kabir_frontier` | Left · Anti-National |
-| `@priya_audit` | Critic (dissent ≠ Anti-National) |
+| `@kabir_frontier` | Left · Adversary-Aligned |
+| `@priya_audit` | Critic (dissent ≠ Adversary-Aligned) |
+
+## Kniq production build
+
+```bash
+cd web
+npm run build:kniq:static
+# deploy `out/` to www.kniq.ai/stance
+```
 
 ## Scripts
 
 ```bash
 cd web
+npm run selftest
 npm run build
-npm run selftest   # quadrant calibration checks
+npm run lint
 ```
-
-## Architecture
-
-```
-handle → activities → classify(topics+stance) → weighted aggregate → 2D coords + evidence
-```
-
-- Definitions: `web/src/data/definitions.ts`
-- Signal weights / routing: `web/src/data/signals.ts`
-- India lexicon + false friends: `web/src/data/lexicon/india-v1.ts`
-- Scorer: `web/src/lib/score.ts`
-- UI: `/` → `/map/[handle]` · `/methodology`
-
-Live X ingest is stubbed until `X_BEARER_TOKEN` + adapter are added; demo corpora power the MVP.

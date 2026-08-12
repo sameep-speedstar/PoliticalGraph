@@ -3,7 +3,7 @@
  * and false-friend filters.
  *
  * Patterns are case-insensitive substring / phrase matchers (normalized text).
- * Stance: negative = Left or Anti-National; positive = Right or National.
+ * Stance: negative = Left or Adversary-Aligned; positive = Right or National.
  */
 
 import type { TopicBucket } from "@/data/signals";
@@ -481,7 +481,7 @@ export const STANCE_CUES: StanceCue[] = [
     tags: ["internal_security"],
   },
 
-  // Anti-National (−) — adversary alignment / sovereignty weakening only
+  // Adversary-Aligned (−) — adversary alignment / sovereignty weakening only
   {
     pattern: "occupied kashmir",
     axis: "nationalInterest",
@@ -575,7 +575,7 @@ export const STANCE_CUES: StanceCue[] = [
 ];
 
 /**
- * False friends: phrases that look National/Anti-National but must not
+ * False friends: phrases that look National/Adversary-Aligned but must not
  * move that axis (or must route elsewhere).
  */
 export type FalseFriend = {
@@ -610,23 +610,23 @@ export const FALSE_FRIENDS: FalseFriend[] = [
     pattern: "human rights",
     blockAxis: "nationalInterest",
     reason:
-      "Human rights alone is not Anti-National; needs adversary/secession codes",
+      "Human rights alone is not Adversary-Aligned; needs adversary/secession codes",
   },
   {
     pattern: "civil liberties",
     blockAxis: "nationalInterest",
-    reason: "Civil liberties alone routes to Left/Right, not Anti-National",
+    reason: "Civil liberties alone routes to Left/Right, not Adversary-Aligned",
   },
   {
     pattern: "modi must resign",
     blockAxis: "nationalInterest",
-    reason: "Party/leader criticism ≠ Anti-National",
+    reason: "Party/leader criticism ≠ Adversary-Aligned",
     forceTopic: "party_tribal",
   },
   {
     pattern: "corrupt ministry",
     blockAxis: "nationalInterest",
-    reason: "Corruption critique ≠ Anti-National",
+    reason: "Corruption critique ≠ Adversary-Aligned",
   },
   {
     pattern: "defence procurement scam",

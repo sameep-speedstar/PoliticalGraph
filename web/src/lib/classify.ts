@@ -79,7 +79,7 @@ export function stanceFromText(text: string): {
 
 /**
  * Classify one activity into weighted stance contributions per axis.
- * Anti-National stance is suppressed when only false-friend / dissent patterns match.
+ * Adversary-Aligned stance is suppressed when only false-friend / dissent patterns match.
  */
 export function classifyActivity(activity: XActivity): ScoredActivity | null {
   const combined = [activity.text, activity.contextText ?? ""]

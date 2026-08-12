@@ -1,8 +1,10 @@
 /**
- * Frozen pole definitions for XAxis (India v1).
- * See docs/METHODOLOGY.md — do not collapse Left/Right into National.
+ * Frozen pole definitions for Stance (India v1).
+ * Public axis label: National ↔ Adversary-Aligned (not a loyalty verdict).
  */
 
+export const PRODUCT_NAME = "Stance";
+export const PRODUCT_PATH = "/stance";
 export const METHODOLOGY_VERSION = "2026-08-12";
 export const LEXICON_PACK = "india-v1";
 export const REFERENCE_NATION = "India";
@@ -158,11 +160,12 @@ export const nationalPole: PoleDefinition = {
   ],
 };
 
-export const antiNationalPole: PoleDefinition = {
-  id: "anti_national",
+/** Public label: Adversary-Aligned (internal code remains adversary_aligned). */
+export const adversaryAlignedPole: PoleDefinition = {
+  id: "adversary_aligned",
   axis: "nationalInterest",
   score: -100,
-  label: "Anti-National",
+  label: "Adversary-Aligned",
   internalCode: "adversary_aligned",
   summary:
     "Systematically amplifies adversary narratives, denies territorial/constitutional integrity, or prefers rival strategic wins over India’s.",
@@ -205,15 +208,21 @@ export const antiNationalPole: PoleDefinition = {
   ],
 };
 
+/** @deprecated Use adversaryAlignedPole — kept alias for older imports */
+export const antiNationalPole = adversaryAlignedPole;
+
 /** Explicit exclusions: these alone must not move the National axis negative. */
-export const notAntiNationalExclusions: string[] = [
+export const notAdversaryAlignedExclusions: string[] = [
   "Criticism of a party, PM, ministry, or coalition",
   "Critique of policy failure, corruption, or specific military procurement waste",
   "Budget disagreement on defense cost/efficiency without opposing readiness as a principle",
   "Human-rights or civil-liberties advocacy unless paired with adversary, secession, or sovereignty-denial codes",
-  "Calls for nationalization of industry (routes to Left/Right, not National)",
+  "Calls for nationalization of industry (routes to Left/Right, not National axis)",
   "Anti-establishment or anti-BJP framing without adversary-alignment codes",
 ];
+
+/** @deprecated Use notAdversaryAlignedExclusions */
+export const notAntiNationalExclusions = notAdversaryAlignedExclusions;
 
 export const axisLabels = {
   leftRight: {
@@ -224,9 +233,9 @@ export const axisLabels = {
   },
   nationalInterest: {
     id: "nationalInterest" as const,
-    negative: "Anti-National",
+    negative: "Adversary-Aligned",
     positive: "National",
-    title: "National ↔ Anti-National",
+    title: "National ↔ Adversary-Aligned",
     negativeInternal: "adversary_aligned",
     positiveInternal: "national_interest",
   },
