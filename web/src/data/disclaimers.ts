@@ -56,6 +56,11 @@ export const DISCLAIMERS: { id: string; title: string; body: string }[] = [
     body: "Nearest labels, quadrants, or share cards are geometric summaries — not endorsements by KNIQ, Speedstar AI Labs, or any government.",
   },
   {
+    id: "verified_only",
+    title: "Verified handles only",
+    body: "Live mapping accepts verified X accounts only (blue check, business, or government). This reduces casual abuse and mass-mapping of private individuals. Demo handles on this site still work without live ingest.",
+  },
+  {
     id: "corrections",
     title: "Corrections and opt-out",
     body: "Living persons may request correction notes or opt-out from featured demos via KNIQ contact channels. Interpretive models can be wrong; evidence review is encouraged.",

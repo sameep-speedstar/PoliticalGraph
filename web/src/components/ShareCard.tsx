@@ -9,52 +9,95 @@ type Props = {
   result: HandleScoreResult;
 };
 
+/** Compact share copy — stays under ~140 weighted chars (URLs ≈ 23 each on X). */
+function buildShareText(result: HandleScoreResult): string {
+  const lr = result.coords.leftRight;
+  const ni = result.coords.nationalInterest;
+  const lrS = `${lr > 0 ? "+" : ""}${lr}`;
+  const niS = `${ni > 0 ? "+" : ""}${ni}`;
+  const map = absoluteStanceUrl(`/map/${result.handle}/`);
+  const method = absoluteStanceUrl("/methodology/");
+  const disc = absoluteStanceUrl("/disclaimers/");
+  return `@${result.handle} Stance ${lrS}/${niS}\n${map}\nMethod ${method}\nDisc ${disc}`;
+}
+
+async function dataUrlToFile(dataUrl: string, filename: string): Promise<File> {
+  const res = await fetch(dataUrl);
+  const blob = await res.blob();
+  return new File([blob], filename, { type: "image/png" });
+}
+
 export function ShareCard({ result }: Props) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<string | null>(null);
 
-  const evidenceUrl = absoluteStanceUrl(`/map/${result.handle}/`);
   const methodUrl = absoluteStanceUrl("/methodology/");
   const disclaimerUrl = absoluteStanceUrl("/disclaimers/");
+  const shareText = buildShareText(result);
 
-  const shareText = [
-    `Stance map for @${result.handle}`,
-    `Left/Right ${result.coords.leftRight > 0 ? "+" : ""}${result.coords.leftRight} · National/Adversary ${result.coords.nationalInterest > 0 ? "+" : ""}${result.coords.nationalInterest}`,
-    result.quadrant,
-    SHARE_DISCLAIMER,
-    `Evidence: ${evidenceUrl}`,
-    `Methodology: ${methodUrl}`,
-    `Disclaimers: ${disclaimerUrl}`,
-  ].join("\n");
+  const renderPng = useCallback(async () => {
+    if (!cardRef.current) throw new Error("Card not ready");
+    const { toPng } = await import("html-to-image");
+    return toPng(cardRef.current, {
+      pixelRatio: 2,
+      cacheBust: true,
+      backgroundColor: "#0b1520",
+    });
+  }, []);
 
   const downloadPng = useCallback(async () => {
-    if (!cardRef.current) return;
     setBusy(true);
     setNote(null);
     try {
-      const { toPng } = await import("html-to-image");
-      const dataUrl = await toPng(cardRef.current, {
-        pixelRatio: 2,
-        cacheBust: true,
-        backgroundColor: "#0b1520",
-      });
+      const dataUrl = await renderPng();
       const a = document.createElement("a");
       a.href = dataUrl;
       a.download = `stance-${result.handle}.png`;
       a.click();
-      setNote("Screenshot saved — attach it when you post on X.");
+      setNote("Screenshot saved.");
     } catch {
-      setNote("Could not render screenshot. You can still share the link on X.");
+      setNote("Could not render screenshot.");
     } finally {
       setBusy(false);
     }
-  }, [result.handle]);
+  }, [renderPng, result.handle]);
 
-  const shareOnX = useCallback(() => {
-    const intent = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
-    window.open(intent, "_blank", "noopener,noreferrer");
-  }, [shareText]);
+  const shareOnX = useCallback(async () => {
+    setBusy(true);
+    setNote(null);
+    try {
+      const dataUrl = await renderPng();
+      const file = await dataUrlToFile(dataUrl, `stance-${result.handle}.png`);
+      const nav = navigator as Navigator & {
+        canShare?: (data: ShareData) => boolean;
+      };
+      const payload: ShareData = { text: shareText, files: [file] };
+      if (typeof nav.share === "function" && nav.canShare?.(payload)) {
+        await nav.share(payload);
+        setNote("Shared with screenshot + short method/disclaimer links.");
+        return;
+      }
+      // Fallback: download PNG, open X intent with short text
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = `stance-${result.handle}.png`;
+      a.click();
+      const intent = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
+      window.open(intent, "_blank", "noopener,noreferrer");
+      setNote("Screenshot downloaded — attach it to the draft tweet (text is short).");
+    } catch (e) {
+      if ((e as Error)?.name === "AbortError") {
+        setNote(null);
+        return;
+      }
+      const intent = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
+      window.open(intent, "_blank", "noopener,noreferrer");
+      setNote("Opened X with short text — attach the screenshot if download worked.");
+    } finally {
+      setBusy(false);
+    }
+  }, [renderPng, result.handle, shareText]);
 
   return (
     <div className="space-y-4">
@@ -92,27 +135,28 @@ export function ShareCard({ result }: Props) {
           disabled={busy}
           className="rounded-md border border-[var(--line)] px-4 py-2 text-sm text-[var(--ink)] transition hover:border-[var(--brass)] disabled:opacity-60"
         >
-          {busy ? "Rendering…" : "Download screenshot"}
+          {busy ? "Working…" : "Download screenshot"}
         </button>
         <button
           type="button"
           onClick={shareOnX}
-          className="rounded-md bg-[var(--brass)] px-4 py-2 text-sm font-semibold text-[#1a1206] transition hover:brightness-110"
+          disabled={busy}
+          className="rounded-md bg-[var(--brass)] px-4 py-2 text-sm font-semibold text-[#1a1206] transition hover:brightness-110 disabled:opacity-60"
         >
-          Share on X
+          {busy ? "Preparing…" : "Share on X"}
         </button>
       </div>
       {note ? <p className="text-xs text-[var(--muted)]">{note}</p> : null}
       <p className="text-[10px] text-[var(--muted)]">
-        X share text includes evidence,{" "}
+        Share attaches the PNG when the browser allows it, with short{" "}
         <a href={methodUrl} className="text-[var(--brass)] hover:underline">
           methodology
-        </a>
-        , and{" "}
+        </a>{" "}
+        and{" "}
         <a href={disclaimerUrl} className="text-[var(--brass)] hover:underline">
           disclaimers
         </a>{" "}
-        links. Attach the PNG for the card image.
+        links (under X’s length limit).
       </p>
     </div>
   );

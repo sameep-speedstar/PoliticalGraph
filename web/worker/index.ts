@@ -131,6 +131,7 @@ async function scoreLive(handle: string, env: Env): Promise<HandleScoreResult> {
   }
   const ingested = await ingestUserTimeline(handle, env.X_BEARER_TOKEN, {
     maxResults: 100,
+    pages: 2,
   });
   if (!ingested.activities.length) {
     throw Object.assign(new Error("No public posts found in the recent window"), {
@@ -197,9 +198,11 @@ async function analyze(handleRaw: string, env: Env, refresh: boolean): Promise<R
       const hint =
         status === 402
           ? "Add X API credits or upgrade the plan at developer.x.com, then retry."
-          : env.X_BEARER_TOKEN
-            ? "X API error, protected account, or empty recent timeline"
-            : "Set Worker secret X_BEARER_TOKEN for live ingest";
+          : status === 403 && /verified/i.test(errLive || "")
+            ? "Stance maps verified X accounts only (blue / business / government) to limit abuse."
+            : env.X_BEARER_TOKEN
+              ? "X API error, protected account, unverified handle, or empty recent timeline"
+              : "Set Worker secret X_BEARER_TOKEN for live ingest";
       return json(
         {
           error: errLive || "Failed to ingest handle",

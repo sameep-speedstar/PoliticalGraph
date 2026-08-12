@@ -12,7 +12,11 @@ import {
   engagementMultiplier,
   type TopicBucket,
 } from "@/data/signals";
+import { softClassify } from "@/lib/softClassify";
 import type { ScoredActivity, XActivity } from "@/lib/types";
+
+/** Soft-only stance contributions are down-weighted vs hard lexicon hits. */
+const SOFT_WEIGHT = 0.55;
 
 function clamp(n: number, lo: number, hi: number): number {
   return Math.max(lo, Math.min(hi, n));
@@ -79,6 +83,7 @@ export function stanceFromText(text: string): {
 
 /**
  * Classify one activity into weighted stance contributions per axis.
+ * Hard lexicon first; soft lexicon fills gaps so live timelines yield more evidence.
  * Adversary-Aligned stance is suppressed when only false-friend / dissent patterns match.
  */
 export function classifyActivity(activity: XActivity): ScoredActivity | null {
@@ -95,9 +100,30 @@ export function classifyActivity(activity: XActivity): ScoredActivity | null {
   }
 
   const stance = stanceFromText(combined);
+  let stanceLR = stance.leftRight;
+  let stanceNI = stance.national;
+  const tags = new Set(stance.tags);
+  let softLR = false;
+  let softNI = false;
+
+  const soft = softClassify(combined);
+  if (soft) {
+    for (const t of soft.topics) {
+      if (!topics.includes(t)) topics.push(t);
+    }
+    for (const t of soft.tags) tags.add(t);
+    if (stanceLR === 0 && soft.leftRight !== 0) {
+      stanceLR = soft.leftRight;
+      softLR = true;
+    }
+    if (stanceNI === 0 && soft.national !== 0) {
+      stanceNI = soft.national;
+      softNI = true;
+    }
+  }
 
   // If no topic and no stance, skip
-  if (!topics.length && stance.leftRight === 0 && stance.national === 0) {
+  if (!topics.length && stanceLR === 0 && stanceNI === 0) {
     return null;
   }
 
@@ -105,19 +131,16 @@ export function classifyActivity(activity: XActivity): ScoredActivity | null {
   if (
     topics.length === 1 &&
     topics[0] === "party_tribal" &&
-    stance.leftRight === 0 &&
-    stance.national === 0
+    stanceLR === 0 &&
+    stanceNI === 0
   ) {
     return null;
   }
 
-  let stanceLR = stance.leftRight;
-  let stanceNI = stance.national;
-
   // False friends: zero out blocked axis stance unless other hard codes present
   if (ff.blocked.includes("nationalInterest")) {
     const hardAnti =
-      stance.tags.some((t) =>
+      [...tags].some((t) =>
         [
           "territory_denial",
           "secession",
@@ -129,7 +152,7 @@ export function classifyActivity(activity: XActivity): ScoredActivity | null {
         ].includes(t),
       ) && stanceNI < 0;
     const hardNat =
-      stance.tags.some((t) =>
+      [...tags].some((t) =>
         [
           "sovereignty",
           "defense",
@@ -141,6 +164,7 @@ export function classifyActivity(activity: XActivity): ScoredActivity | null {
       ) && stanceNI > 0;
     if (!hardAnti && !hardNat) {
       stanceNI = 0;
+      softNI = false;
     }
   }
 
@@ -162,8 +186,7 @@ export function classifyActivity(activity: XActivity): ScoredActivity | null {
       wLR += rw * (route.secondaryFactor ?? 0);
     }
     if (route.secondaryAxis === "nationalInterest") {
-      // Only apply secondary National if sovereignty-ish tags present
-      const sovereigntyLinked = stance.tags.some((t) =>
+      const sovereigntyLinked = [...tags].some((t) =>
         [
           "sovereignty",
           "secession",
@@ -171,6 +194,9 @@ export function classifyActivity(activity: XActivity): ScoredActivity | null {
           "adversary_echo",
           "constitutional_order",
           "constitutional_rupture",
+          "soft_nat",
+          "soft_const",
+          "soft_anti",
         ].includes(t),
       );
       if (sovereigntyLinked) {
@@ -182,6 +208,9 @@ export function classifyActivity(activity: XActivity): ScoredActivity | null {
   // Stance-only posts (matched cues but weak topics): give base weight
   if (stanceLR !== 0 && wLR === 0) wLR = 0.6 * baseAuth * engMul;
   if (stanceNI !== 0 && wNI === 0) wNI = 0.7 * baseAuth * engMul;
+
+  if (softLR) wLR *= SOFT_WEIGHT;
+  if (softNI) wNI *= SOFT_WEIGHT;
 
   // If stance is zero on an axis, zero its weight
   if (stanceLR === 0) wLR = 0;
@@ -196,7 +225,7 @@ export function classifyActivity(activity: XActivity): ScoredActivity | null {
     createdAt: activity.createdAt,
     permalink: activity.permalink,
     topics,
-    tags: stance.tags,
+    tags: [...tags],
     stanceLeftRight: stanceLR,
     stanceNational: stanceNI,
     weightLeftRight: wLR,

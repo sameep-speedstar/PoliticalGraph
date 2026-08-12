@@ -1,6 +1,7 @@
 /**
  * Fetch recent public posts for an X username via API v2.
  * Requires env.X_BEARER_TOKEN (App-only Bearer).
+ * Only verified accounts are accepted (abuse control).
  */
 import type { XActivity } from "../src/lib/types";
 
@@ -11,6 +12,8 @@ type XUser = {
   name?: string;
   username?: string;
   protected?: boolean;
+  verified?: boolean;
+  verified_type?: string | null;
 };
 
 type XTweet = {
@@ -29,6 +32,8 @@ type XTweet = {
 export type IngestResult = {
   handle: string;
   displayName?: string;
+  verified: boolean;
+  verifiedType?: string | null;
   activities: XActivity[];
 };
 
@@ -58,7 +63,6 @@ async function xGet<T>(
       (json as { reason?: string })?.reason ||
       text.slice(0, 240) ||
       res.statusText;
-    // Normalize common X billing errors
     if (res.status === 402 || /credit|payment|billing|UsageCapExceeded/i.test(detail)) {
       return {
         ok: false,
@@ -70,6 +74,12 @@ async function xGet<T>(
     return { ok: false, status: res.status, detail };
   }
   return { ok: true, data: json as T };
+}
+
+export function isVerifiedUser(user: XUser): boolean {
+  if (user.verified === true) return true;
+  const t = (user.verified_type || "").toLowerCase();
+  return t === "blue" || t === "business" || t === "government";
 }
 
 function tweetToActivity(t: XTweet, handle: string): XActivity {
@@ -93,10 +103,56 @@ function tweetToActivity(t: XTweet, handle: string): XActivity {
   };
 }
 
+async function fetchTweetPage(
+  userId: string,
+  bearer: string,
+  maxResults: number,
+  paginationToken?: string,
+): Promise<{ tweets: XTweet[]; next?: string }> {
+  const tweetFields = [
+    "created_at",
+    "public_metrics",
+    "referenced_tweets",
+    "lang",
+  ].join(",");
+  // Include replies + quotes; still exclude pure retweets noise optionally via client filter
+  let path =
+    `/users/${userId}/tweets?max_results=${maxResults}` +
+    `&tweet.fields=${tweetFields}` +
+    `&exclude=retweets`;
+  if (paginationToken) {
+    path += `&pagination_token=${encodeURIComponent(paginationToken)}`;
+  }
+  let res = await xGet<{
+    data?: XTweet[];
+    meta?: { next_token?: string; result_count?: number };
+  }>(path, bearer);
+
+  // Some tiers reject exclude=retweets — retry bare
+  if (!res.ok) {
+    path =
+      `/users/${userId}/tweets?max_results=${maxResults}` +
+      `&tweet.fields=${tweetFields}`;
+    if (paginationToken) {
+      path += `&pagination_token=${encodeURIComponent(paginationToken)}`;
+    }
+    res = await xGet(path, bearer);
+  }
+  if (!res.ok) {
+    throw Object.assign(new Error(res.detail || "Timeline fetch failed"), {
+      status: res.status,
+    });
+  }
+  return {
+    tweets: res.data.data || [],
+    next: res.data.meta?.next_token,
+  };
+}
+
 export async function ingestUserTimeline(
   rawHandle: string,
   bearer: string,
-  opts?: { maxResults?: number },
+  opts?: { maxResults?: number; pages?: number },
 ): Promise<IngestResult> {
   const handle = rawHandle.replace(/^@/, "").toLowerCase();
   if (!/^[a-z0-9_]{1,15}$/i.test(handle)) {
@@ -104,7 +160,7 @@ export async function ingestUserTimeline(
   }
 
   const userRes = await xGet<{ data?: XUser }>(
-    `/users/by/username/${encodeURIComponent(handle)}?user.fields=protected,name`,
+    `/users/by/username/${encodeURIComponent(handle)}?user.fields=protected,name,verified,verified_type`,
     bearer,
   );
   if (!userRes.ok) {
@@ -121,40 +177,32 @@ export async function ingestUserTimeline(
       status: 403,
     });
   }
-
-  const maxResults = Math.min(Math.max(opts?.maxResults ?? 100, 5), 100);
-  const tweetFields = [
-    "created_at",
-    "public_metrics",
-    "referenced_tweets",
-    "lang",
-  ].join(",");
-  const tweetsRes = await xGet<{ data?: XTweet[]; meta?: { result_count?: number } }>(
-    `/users/${user.id}/tweets?max_results=${maxResults}&tweet.fields=${tweetFields}&exclude=replies`,
-    bearer,
-  );
-
-  // If exclude=replies fails on some tiers, retry without exclude
-  let tweets: XTweet[] = [];
-  if (!tweetsRes.ok) {
-    const retry = await xGet<{ data?: XTweet[] }>(
-      `/users/${user.id}/tweets?max_results=${maxResults}&tweet.fields=${tweetFields}`,
-      bearer,
+  if (!isVerifiedUser(user)) {
+    throw Object.assign(
+      new Error(
+        "Only verified X accounts can be mapped (blue / business / government check required)",
+      ),
+      { status: 403 },
     );
-    if (!retry.ok) {
-      throw Object.assign(new Error(retry.detail || "Timeline fetch failed"), {
-        status: retry.status,
-      });
-    }
-    tweets = retry.data.data || [];
-  } else {
-    tweets = tweetsRes.data.data || [];
+  }
+
+  const perPage = Math.min(Math.max(opts?.maxResults ?? 100, 10), 100);
+  const pages = Math.min(Math.max(opts?.pages ?? 2, 1), 3);
+  const tweets: XTweet[] = [];
+  let token: string | undefined;
+  for (let i = 0; i < pages; i++) {
+    const page = await fetchTweetPage(user.id, bearer, perPage, token);
+    tweets.push(...page.tweets);
+    token = page.next;
+    if (!token) break;
   }
 
   const activities = tweets.map((t) => tweetToActivity(t, handle));
   return {
     handle,
     displayName: user.name,
+    verified: true,
+    verifiedType: user.verified_type ?? (user.verified ? "legacy" : null),
     activities,
   };
 }

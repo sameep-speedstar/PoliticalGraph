@@ -12,11 +12,13 @@ export default function HomePage() {
             Stance
           </p>
           <h1 className="animate-rise-delay mt-5 max-w-2xl text-xl leading-snug text-[var(--ink)] sm:text-2xl">
-            Drop an X handle. See Left↔Right and National↔Adversary-Aligned from
-            public posts — evidence-backed, not a questionnaire.
+            Drop a verified X handle. See Left↔Right and National↔Adversary-Aligned
+            from public posts — evidence-backed, not a questionnaire.
           </h1>
           <p className="animate-rise-delay-2 mt-4 max-w-xl text-sm leading-relaxed text-[var(--muted)] sm:text-base">
-            {SHORT_DISCLAIMER} Full method and exclusions are on the{" "}
+            Live mapping is limited to verified accounts (blue / business /
+            government) to reduce abuse. {SHORT_DISCLAIMER} Full method and
+            exclusions are on the{" "}
             <Link href="/methodology" className="text-[var(--brass)] hover:underline">
               Methodology
             </Link>{" "}

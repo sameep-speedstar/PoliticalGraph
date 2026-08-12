@@ -155,7 +155,7 @@ function summaryText(lr: number, ni: number, conf: ConfidenceBreakdown): string 
   return `Public X activity reads as ${lrWord} and ${niWord} (confidence ${conf.label}). Experimental estimate — not a personal attack. Party criticism alone does not define the National axis.`;
 }
 
-function buildEvidence(scored: ScoredActivity[], limit = 12): EvidenceItem[] {
+function buildEvidence(scored: ScoredActivity[], limit = 20): EvidenceItem[] {
   const ranked = [...scored].sort((a, b) => {
     const ca =
       Math.abs(a.weightLeftRight * a.stanceLeftRight) +

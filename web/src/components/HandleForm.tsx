@@ -57,7 +57,7 @@ export function HandleForm({ initial }: { initial?: string }) {
             name="handle"
             autoComplete="off"
             spellCheck={false}
-            placeholder="username"
+            placeholder="verified username"
             value={handle}
             onChange={(e) => setHandle(e.target.value)}
             className="w-full bg-transparent px-2 py-3 text-[var(--ink)] outline-none placeholder:text-[var(--muted)]"
@@ -73,7 +73,11 @@ export function HandleForm({ initial }: { initial?: string }) {
       </form>
       {error ? (
         <p className="mt-3 text-sm text-[var(--adversary)]">{error}</p>
-      ) : null}
+      ) : (
+        <p className="mt-3 text-xs text-[var(--muted)]">
+          Verified handles only for live maps · demos below always work
+        </p>
+      )}
 
       <div className="mt-5">
         <span className="text-xs uppercase tracking-wider text-[var(--muted)]">
