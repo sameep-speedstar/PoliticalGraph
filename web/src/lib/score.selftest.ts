@@ -1,8 +1,9 @@
 /**
- * Lightweight self-check for scorer + false-friend calibration.
+ * Lightweight self-check for scorer + false-friend calibration + figures.
  * Run: npx tsx src/lib/score.selftest.ts
  */
 import { findDemoHandle } from "@/data/demo-handles";
+import { FIGURE_HANDLES } from "@/data/public-figures";
 import { scoreHandleActivities } from "@/lib/score";
 
 function assert(cond: boolean, msg: string) {
@@ -54,11 +55,27 @@ function run() {
     `kabir should be Adversary-Aligned, got ${k.coords.nationalInterest}`,
   );
 
-  // Critic: Left-leaning ok; must NOT be strongly Adversary-Aligned
   assert(
     p.coords.nationalInterest > -10,
     `priya critic must not score Adversary-Aligned, got ${p.coords.nationalInterest}`,
   );
+
+  const figureCoords: Record<string, { leftRight: number; nationalInterest: number }> =
+    {};
+  for (const f of FIGURE_HANDLES) {
+    const r = scoreHandleActivities({
+      handle: f.handle,
+      activities: f.activities,
+      source: "demo",
+    });
+    figureCoords[f.handle] = r.coords;
+    assert(
+      r.coords.nationalInterest > 20,
+      `${f.handle} expected National-leaning, got ${r.coords.nationalInterest}`,
+    );
+  }
+  assert(figureCoords.narendramodi.leftRight > 15, "modi should lean Right");
+  assert(figureCoords.rahulgandhi.leftRight < -15, "rahul should lean Left");
 
   console.log(
     JSON.stringify(
@@ -67,6 +84,7 @@ function run() {
         neha: n.coords,
         kabir: k.coords,
         priya: p.coords,
+        figures: figureCoords,
       },
       null,
       2,

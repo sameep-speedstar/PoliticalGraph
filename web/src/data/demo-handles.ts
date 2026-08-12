@@ -1,4 +1,5 @@
 import type { XActivity } from "@/lib/types";
+import { FIGURE_HANDLES } from "@/data/public-figures";
 
 export type DemoHandle = {
   handle: string;
@@ -366,11 +367,17 @@ const criticOnly: DemoHandle = {
   ],
 };
 
-export const DEMO_HANDLES: DemoHandle[] = [
+const SYNTHETIC_DEMOS: DemoHandle[] = [
   arjunNationalRight,
   nehaLeftNational,
   kabirAdversaryLeft,
   criticOnly,
+];
+
+/** Synthetic calibration demos + interpretive public-figure corpora. */
+export const DEMO_HANDLES: DemoHandle[] = [
+  ...FIGURE_HANDLES,
+  ...SYNTHETIC_DEMOS,
 ];
 
 export function findDemoHandle(raw: string): DemoHandle | undefined {

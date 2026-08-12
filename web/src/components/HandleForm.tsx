@@ -3,9 +3,16 @@
 import { useRouter } from "next/navigation";
 import { FormEvent, useState, useTransition } from "react";
 
-const DEMOS = [
-  { handle: "arjun_bharat", label: "Right · National" },
-  { handle: "neha_republic", label: "Left · National" },
+const FIGURE_DEMOS = [
+  { handle: "narendramodi", label: "Political · Right · National" },
+  { handle: "rahulgandhi", label: "Political · Left · National" },
+  { handle: "nsitharaman", label: "Economic · Right · National" },
+  { handle: "rajnathsingh", label: "Political · Defence · National" },
+  { handle: "anandmahindra", label: "Business · Markets · National" },
+  { handle: "nandannilekani", label: "Business · Tech · National" },
+];
+
+const CALIBRATION = [
   { handle: "kabir_frontier", label: "Left · Adversary-Aligned" },
   { handle: "priya_audit", label: "Critic ≠ Adversary-Aligned" },
 ];
@@ -34,7 +41,7 @@ export function HandleForm({ initial }: { initial?: string }) {
   }
 
   return (
-    <div className="w-full max-w-xl">
+    <div className="w-full max-w-2xl">
       <form
         id="measure"
         onSubmit={onSubmit}
@@ -67,24 +74,49 @@ export function HandleForm({ initial }: { initial?: string }) {
       {error ? (
         <p className="mt-3 text-sm text-[var(--adversary)]">{error}</p>
       ) : null}
-      <div className="mt-5 flex flex-wrap gap-2">
-        <span className="mr-1 self-center text-xs uppercase tracking-wider text-[var(--muted)]">
-          Demo
+
+      <div className="mt-5">
+        <span className="text-xs uppercase tracking-wider text-[var(--muted)]">
+          Public figures (interpretive demos)
         </span>
-        {DEMOS.map((d) => (
-          <button
-            key={d.handle}
-            type="button"
-            onClick={() => {
-              setHandle(d.handle);
-              submit(d.handle);
-            }}
-            className="rounded border border-[var(--line)] px-2.5 py-1 text-xs text-[var(--muted)] transition hover:border-[var(--brass)] hover:text-[var(--ink)]"
-          >
-            @{d.handle}
-            <span className="ml-1 opacity-60">· {d.label}</span>
-          </button>
-        ))}
+        <div className="mt-2 flex flex-wrap gap-2">
+          {FIGURE_DEMOS.map((d) => (
+            <button
+              key={d.handle}
+              type="button"
+              onClick={() => {
+                setHandle(d.handle);
+                submit(d.handle);
+              }}
+              className="rounded border border-[var(--line)] px-2.5 py-1 text-xs text-[var(--muted)] transition hover:border-[var(--brass)] hover:text-[var(--ink)]"
+            >
+              @{d.handle}
+              <span className="ml-1 opacity-60">· {d.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-4">
+        <span className="text-xs uppercase tracking-wider text-[var(--muted)]">
+          Calibration
+        </span>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {CALIBRATION.map((d) => (
+            <button
+              key={d.handle}
+              type="button"
+              onClick={() => {
+                setHandle(d.handle);
+                submit(d.handle);
+              }}
+              className="rounded border border-[var(--line)] px-2.5 py-1 text-xs text-[var(--muted)] transition hover:border-[var(--brass)] hover:text-[var(--ink)]"
+            >
+              @{d.handle}
+              <span className="ml-1 opacity-60">· {d.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );

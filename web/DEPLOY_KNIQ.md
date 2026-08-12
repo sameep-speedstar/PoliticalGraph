@@ -2,51 +2,18 @@
 
 Target: **https://www.kniq.ai/stance** (and `kniq.ai/stance`).
 
-## Build
+## Deploy Stance only (preserve Poligraph)
 
 ```bash
+export CLOUDFLARE_API_TOKEN='…'   # Workers Scripts Edit; allow this IP if filtered
+export CLOUDFLARE_ACCOUNT_ID='bc4f133b1a6341e56c3b7041374e64b3'  # optional
 cd web
-npm ci
-
-# Static HTML for Cloudflare Pages / folder merge
-npm run build:kniq:static
-# → copy `out/` contents into kniq site under /stance/
-
-# OR Node server with basePath
-npm run build:kniq
-npm run start:kniq
+./scripts/deploy-stance-kniq.sh
 ```
 
-## Hosting (same pattern as Poligraph)
+The script mirrors live `kniq.ai` (including `/poligraph`), overlays **only** `/stance`, then deploys Worker `kniqnew`. It aborts if Poligraph cannot be mirrored.
 
-### Merge into existing Pages project
+Smoke after deploy:
 
-Copy `web/out/*` into the kniq Pages project as `/stance/*`, then redeploy.
-
-Or use a Worker / Bulk Redirect:
-
-```
-/stance/*  →  https://<stance-pages>.pages.dev/stance/:splat  200
-/stance    →  https://<stance-pages>.pages.dev/stance          200
-```
-
-### KNIQ site edits
-
-1. Nav / products: **Stance** → `/stance`
-2. sitemap: `https://www.kniq.ai/stance`
-3. Confirm GA4 fires on `/stance` paths
-
-## Smoke test
-
-- [ ] `/stance` hero + handle form + disclaimers
-- [ ] `/stance/map/arjun_bharat/` scores + evidence + share card
-- [ ] `/stance/methodology/` poles + formula
-- [ ] `/stance/disclaimers/` full list
-- [ ] Download screenshot + Share on X intent
-- [ ] KNIQ crumb returns to `https://www.kniq.ai/`
-
-## Notes
-
-- Static export prebuilds demo handles only; live X ingest needs a server adapter later.
-- Axis public labels: **National ↔ Adversary-Aligned**.
-- Every surface includes experimental / not-a-personal-attack disclaimers.
+- https://www.kniq.ai/stance/
+- https://www.kniq.ai/poligraph/  (must remain 200)

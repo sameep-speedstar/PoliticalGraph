@@ -14,14 +14,18 @@ export function ShareCard({ result }: Props) {
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<string | null>(null);
 
-  const evidenceUrl = absoluteStanceUrl(`/map/${result.handle}`);
-  const methodUrl = absoluteStanceUrl("/methodology");
+  const evidenceUrl = absoluteStanceUrl(`/map/${result.handle}/`);
+  const methodUrl = absoluteStanceUrl("/methodology/");
+  const disclaimerUrl = absoluteStanceUrl("/disclaimers/");
 
   const shareText = [
     `Stance map for @${result.handle}`,
     `Left/Right ${result.coords.leftRight > 0 ? "+" : ""}${result.coords.leftRight} · National/Adversary ${result.coords.nationalInterest > 0 ? "+" : ""}${result.coords.nationalInterest}`,
+    result.quadrant,
     SHARE_DISCLAIMER,
-    evidenceUrl,
+    `Evidence: ${evidenceUrl}`,
+    `Methodology: ${methodUrl}`,
+    `Disclaimers: ${disclaimerUrl}`,
   ].join("\n");
 
   const downloadPng = useCallback(async () => {
@@ -74,7 +78,10 @@ export function ShareCard({ result }: Props) {
           {result.confidence.label} · {result.lexiconPack}
         </p>
         <p className="mt-3 text-[10px] leading-relaxed text-[var(--muted)]">
-          {SHARE_DISCLAIMER}. Methodology: kniq.ai/stance/methodology
+          {SHARE_DISCLAIMER}
+        </p>
+        <p className="mt-2 text-[10px] leading-relaxed text-[var(--brass)]">
+          kniq.ai/stance/methodology · kniq.ai/stance/disclaimers
         </p>
       </div>
 
@@ -97,9 +104,15 @@ export function ShareCard({ result }: Props) {
       </div>
       {note ? <p className="text-xs text-[var(--muted)]">{note}</p> : null}
       <p className="text-[10px] text-[var(--muted)]">
-        Share text includes the evidence link ({evidenceUrl}) and points to{" "}
-        {methodUrl}. Screenshot download is separate — attach the PNG on X if you
-        want the card image.
+        X share text includes evidence,{" "}
+        <a href={methodUrl} className="text-[var(--brass)] hover:underline">
+          methodology
+        </a>
+        , and{" "}
+        <a href={disclaimerUrl} className="text-[var(--brass)] hover:underline">
+          disclaimers
+        </a>{" "}
+        links. Attach the PNG for the card image.
       </p>
     </div>
   );

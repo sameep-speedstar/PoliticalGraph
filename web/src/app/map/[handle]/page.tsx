@@ -5,6 +5,7 @@ import { HandleForm } from "@/components/HandleForm";
 import { ShareCard } from "@/components/ShareCard";
 import { DEMO_HANDLES, findDemoHandle } from "@/data/demo-handles";
 import { SHORT_DISCLAIMER } from "@/data/disclaimers";
+import { findFigureHandle } from "@/data/public-figures";
 import { scoreHandleActivities } from "@/lib/score";
 
 type Props = {
@@ -15,13 +16,14 @@ export function generateStaticParams() {
   return DEMO_HANDLES.map((d) => ({ handle: d.handle }));
 }
 
-/** Only prebuilt demo handles in static export; others show fallback via client nav rare. */
+/** Only prebuilt demo handles in static export. */
 export const dynamicParams = false;
 
 export default async function MapPage({ params }: Props) {
   const { handle: raw } = await params;
   const handle = decodeURIComponent(raw).replace(/^@/, "").toLowerCase();
   const demo = findDemoHandle(handle);
+  const figure = findFigureHandle(handle);
 
   if (!demo) {
     return (
@@ -61,6 +63,7 @@ export default async function MapPage({ params }: Props) {
         <div>
           <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted)]">
             Mapped handle
+            {figure ? ` · ${figure.domain}` : ""}
           </p>
           <h1 className="font-display text-4xl font-bold tracking-tight">
             @{result.handle}
@@ -75,6 +78,12 @@ export default async function MapPage({ params }: Props) {
           ({result.confidence.overall})
         </div>
       </div>
+
+      {figure ? (
+        <p className="mt-4 max-w-2xl rounded border border-[var(--line)] bg-black/20 px-3 py-2 text-xs text-[var(--muted)]">
+          {figure.note}
+        </p>
+      ) : null}
 
       <p className="mt-6 max-w-2xl text-[var(--ink)]">{result.summary}</p>
       <p className="mt-2 text-sm text-[var(--brass)]">{result.quadrant}</p>
@@ -91,7 +100,11 @@ export default async function MapPage({ params }: Props) {
 
       <div className="mt-10 grid gap-10 lg:grid-cols-2">
         <div>
-          <AxisPlot coords={result.coords} handle={result.handle} />
+          <AxisPlot
+            coords={result.coords}
+            handle={result.handle}
+            evidence={result.evidence}
+          />
           <div className="mt-6 grid grid-cols-2 gap-4 text-sm">
             <div>
               <p className="text-xs uppercase tracking-wider text-[var(--muted)]">
@@ -124,8 +137,8 @@ export default async function MapPage({ params }: Props) {
           <h2 className="font-display text-2xl font-semibold">Evidence</h2>
           <p className="mt-1 text-sm text-[var(--muted)]">
             Top weighted contributions from {result.scoredCount} of{" "}
-            {result.activityCount} activities ({result.source}). Calculations are
-            evidence-backed — inspect items below.
+            {result.activityCount} activities ({result.source}). Click callouts on
+            the map to highlight a contributing post.
           </p>
           <div className="mt-6">
             <EvidenceList items={result.evidence} />
@@ -136,8 +149,8 @@ export default async function MapPage({ params }: Props) {
       <section className="mt-12 border-t border-[var(--line)] pt-8">
         <h2 className="font-display text-2xl font-semibold">Share on X</h2>
         <p className="mt-2 max-w-xl text-sm text-[var(--muted)]">
-          Download a screenshot card, then share on X with the evidence link.
-          Sharing is optional; do not use results as a personal attack.
+          Download a screenshot card, then share on X with evidence, methodology,
+          and disclaimer links. Do not use results as a personal attack.
         </p>
         <div className="mt-6 max-w-md">
           <ShareCard result={result} />
