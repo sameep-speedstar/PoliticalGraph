@@ -194,12 +194,16 @@ async function analyze(handleRaw: string, env: Env, refresh: boolean): Promise<R
     result = scoreDemo(handle);
     if (!result) {
       const status = err.status && err.status >= 400 ? err.status : 502;
+      const hint =
+        status === 402
+          ? "Add X API credits or upgrade the plan at developer.x.com, then retry."
+          : env.X_BEARER_TOKEN
+            ? "X API error, protected account, or empty recent timeline"
+            : "Set Worker secret X_BEARER_TOKEN for live ingest";
       return json(
         {
           error: errLive || "Failed to ingest handle",
-          hint: env.X_BEARER_TOKEN
-            ? "X API error or protected/empty timeline"
-            : "Set Worker secret X_BEARER_TOKEN for live ingest",
+          hint,
         },
         status === 503 ? 503 : status,
       );
