@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { DISCLAIMERS, SHORT_DISCLAIMER } from "@/data/disclaimers";
 import { HandleForm } from "@/components/HandleForm";
+import { TrendingHandles } from "@/components/TrendingHandles";
 
 export default function HomePage() {
   return (
@@ -19,13 +20,15 @@ export default function HomePage() {
             <Link href="/methodology" className="text-[var(--brass)] hover:underline">
               Methodology
             </Link>{" "}
-            page.
+            page. Results are cached with a last-measured timestamp.
           </p>
         </div>
         <div className="animate-rise-delay-2 mt-10">
           <HandleForm />
         </div>
       </div>
+
+      <TrendingHandles />
 
       <section className="mt-16 max-w-3xl border-t border-[var(--line)] pt-10">
         <h2 className="font-display text-2xl font-semibold">Before you map</h2>

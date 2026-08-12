@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# worker build artifact (rebuilt on deploy)
+/scripts/kniq-worker.bundle.js

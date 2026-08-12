@@ -165,29 +165,46 @@ print("assembled OK")
 PY
 
 mkdir -p "$CFG"
-cp "$ROOT/scripts/kniq-worker.js" "$CFG/worker.js"
+echo "==> Bundling Worker (scorer + X ingest + API)…"
+cd "$ROOT"
+npm run build:worker
+cp "$ROOT/scripts/kniq-worker.bundle.js" "$CFG/worker.js"
+cp "$ROOT/worker/schema.sql" "$CFG/schema.sql"
+
 cat > "$CFG/wrangler.toml" <<EOF
 name = "kniqnew"
 main = "worker.js"
 compatibility_date = "2026-07-17"
 account_id = "$ACCOUNT_ID"
 
+[[d1_databases]]
+binding = "DB"
+database_name = "stance-cache"
+database_id = "61b2d0ab-cee3-4966-8a79-80637b7d5ed6"
+
 [assets]
 directory = "$SITE"
 binding = "ASSETS"
 html_handling = "auto-trailing-slash"
 not_found_handling = "none"
-run_worker_first = ["/stance/map/*"]
+run_worker_first = ["/stance/api/*", "/stance/map/*"]
 EOF
+
+echo "==> Applying D1 schema…"
+cd "$CFG"
+npx --yes wrangler d1 execute stance-cache --remote --file=./schema.sql
 
 echo "==> Preflight: poligraph + stance + map shell present"
 ls -la "$SITE/poligraph/index.html" "$SITE/stance/index.html" "$SITE/stance/map/index.html"
 
 echo "==> Deploying Worker + assets kniqnew…"
-cd "$CFG"
 npx --yes wrangler deploy
 
 echo ""
 echo "Live Stance:    https://www.kniq.ai/stance/"
-echo "Unknown handle: https://www.kniq.ai/stance/map/ranaayyub/  (should be Stance UI, not browser 404)"
+echo "API analyze:    https://www.kniq.ai/stance/api/analyze?handle=narendramodi"
+echo "API trending:   https://www.kniq.ai/stance/api/trending"
 echo "Check Poligraph https://www.kniq.ai/poligraph/  (must still 200)"
+echo ""
+echo "If live X ingest is needed, set secret:"
+echo "  npx wrangler secret put X_BEARER_TOKEN"

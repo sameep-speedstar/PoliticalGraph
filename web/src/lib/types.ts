@@ -80,4 +80,10 @@ export type HandleScoreResult = {
   source: "demo" | "live";
   activityCount: number;
   scoredCount: number;
+  /** ISO timestamp when this score was last measured (DB cache) */
+  measuredAt?: string;
+  /** Cumulative map requests for this handle */
+  searchCount?: number;
+  /** True when served from DB without re-ingest */
+  fromCache?: boolean;
 };

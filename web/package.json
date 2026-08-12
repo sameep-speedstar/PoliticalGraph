@@ -7,6 +7,7 @@
     "build": "next build",
     "build:kniq": "STANCE_BASE_PATH=/stance next build",
     "build:kniq:static": "STANCE_EXPORT=1 STANCE_BASE_PATH=/stance next build",
+    "build:worker": "node scripts/build-worker.mjs",
     "start": "next start",
     "start:kniq": "STANCE_BASE_PATH=/stance next start",
     "lint": "tsc --noEmit",
@@ -19,10 +20,12 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260702.1",
     "@eslint/eslintrc": "^3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "esbuild": "^0.25.12",
     "eslint": "^9",
     "eslint-config-next": "^16.3.0",
     "postcss": "^8",
