@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 96" width="320" height="96" role="img" aria-label="KNIQ">
+  <title>KNIQ</title>
+  <rect width="320" height="96" fill="none"/>
+  <text x="8" y="68" font-family="Fraunces, Georgia, 'Times New Roman', serif" font-size="64" font-weight="500" letter-spacing="2" fill="#1B1A17">KN</text>
+  <circle cx="152" cy="52" r="9" fill="#BD5B3D"/>
+  <text x="172" y="68" font-family="Fraunces, Georgia, 'Times New Roman', serif" font-size="64" font-weight="500" letter-spacing="2" fill="#1B1A17">IQ</text>
+</svg>
